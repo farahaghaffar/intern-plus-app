@@ -25,7 +25,7 @@ Match % = 40% skills overlap + 30% Intern+ score + 15% major fit + 10% graduatio
 | Folder | What it is |
 | --- | --- |
 | `web/` | **The real app.** Runs on Supabase with email sign-up. This is what Netlify publishes. |
-| `supabase/setup.sql` | Database setup: tables, privacy rules (row-level security), server-side scoring, sample students. Run once in Supabase's SQL Editor. |
+| `supabase/setup.sql`, `supabase/02_hardening.sql` | Database setup (run in order): tables, privacy rules (row-level security), server-side scoring, sample students. Run once in Supabase's SQL Editor. |
 | `claude-pilot/` | The earlier prototype that runs inside claude.ai (uses its built-in database). Kept for reference. |
 | `seed/` | The 8 fictional sample students as JSON. |
 
@@ -34,9 +34,9 @@ Match % = 40% skills overlap + 30% Intern+ score + 15% major fit + 10% graduatio
 | Table / view | Who can read | Who can write |
 | --- | --- | --- |
 | `students` | that student, admins | that student (score, override and sample flag are protected), admins |
-| `talent` (view, anonymous: no name or contact) | signed-in users | computed from `students` |
+| `get_talent()` (anonymous: no name or contact) | signed-in users | computed from `students` |
 | `roles` | the employer who posted it, admins | that employer (cannot publish), admins approve |
-| `openings` (view of approved roles) | signed-in users | computed from `roles` |
+| `get_openings()` (approved roles) | signed-in users | computed from `roles` |
 | `applications` | that student, admins | students, to approved roles only |
 | `intro_requests` | that employer, admins | employers, for their own roles only |
 | `shortlist` | that employer, admins | admins send; employers can only change the status |

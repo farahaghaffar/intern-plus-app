@@ -386,8 +386,8 @@ async function load(){
       wantStudent?q(sb.from('applications').select('*')):[],
       wantEmployer?q(sb.from('intro_requests').select('*')):[],
       wantEmployer?q(sb.from('shortlist').select('*')):[],
-      wantStudent?q(sb.from('openings').select('*')):[],
-      wantEmployer?q(sb.from('talent').select('*')):[]]);
+      wantStudent?q(sb.rpc('get_openings')):[],
+      wantEmployer?q(sb.rpc('get_talent')):[]]);
     state.students=new Map(students.map(r=>[r.id,mapStudent(r)]));
     const emp=new Map();
     for(const r of roles.map(mapRole).sort((a,b)=>a.createdAt-b.createdAt)){
