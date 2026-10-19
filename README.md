@@ -20,9 +20,32 @@ The Intern+ founding-pilot MVP: an employability platform connecting students, e
 
 Match % = 40% skills overlap + 30% Intern+ score + 15% major fit + 10% graduation-year fit + 5% location fit. Must-have skills and the minimum score act as filters.
 
-## Where it runs today
+## Folders
 
-`app/index.html` is published as a claude.ai artifact and uses its built-in database (`window.claude.use('db')`). It does not save data when opened outside claude.ai. Data collections and their privacy rules:
+| Folder | What it is |
+| --- | --- |
+| `web/` | **The real app.** Runs on Supabase with email sign-up. This is what Netlify publishes. |
+| `supabase/setup.sql` | Database setup: tables, privacy rules (row-level security), server-side scoring, sample students. Run once in Supabase's SQL Editor. |
+| `claude-pilot/` | The earlier prototype that runs inside claude.ai (uses its built-in database). Kept for reference. |
+| `seed/` | The 8 fictional sample students as JSON. |
+
+## Supabase version: who can see what
+
+| Table / view | Who can read | Who can write |
+| --- | --- | --- |
+| `students` | that student, admins | that student (score, override and sample flag are protected), admins |
+| `talent` (view, anonymous: no name or contact) | signed-in users | computed from `students` |
+| `roles` | the employer who posted it, admins | that employer (cannot publish), admins approve |
+| `openings` (view of approved roles) | signed-in users | computed from `roles` |
+| `applications` | that student, admins | students, to approved roles only |
+| `intro_requests` | that employer, admins | employers, for their own roles only |
+| `shortlist` | that employer, admins | admins send; employers can only change the status |
+
+Scores are calculated in the database, so students cannot change their own score. Admins are set by hand (see the end of `setup.sql`). Admin opens at `#admin`.
+
+## Earlier claude.ai prototype
+
+`claude-pilot/index.html` runs as a claude.ai artifact and uses its built-in database (`window.claude.use('db')`). Its collections and privacy rules:
 
 | Collection | Who can read | Who can write |
 | --- | --- | --- |
@@ -36,7 +59,7 @@ Match % = 40% skills overlap + 30% Intern+ score + 15% major fit + 10% graduatio
 
 ## Next step
 
-Move the data layer to Supabase (tables + row-level security mirroring the rules above) and host the app on Netlify or Vercel so students and employers can sign up without Claude accounts.
+Host `web/` on Netlify (connected to this repository; `netlify.toml` already points at `web/`), then set the Netlify address as the Site URL in Supabase > Authentication > URL Configuration so confirmation and password-reset emails link back to the app.
 
 ## Status
 
