@@ -18,14 +18,16 @@ The Intern+ founding-pilot MVP: an employability platform connecting students, e
 | Digital skills | Assessment | 15% |
 | Experience & activities | Profile | 25% |
 
-Match % = 40% skills overlap + 30% Intern+ score + 15% major fit + 10% graduation-year fit + 5% location fit. Must-have skills and the minimum score act as filters.
+Match % = 35% skills overlap + 25% Intern+ score + 10% field of study + 10% role area + 5% position type + 5% timing (year-round vs breaks) + 2.5% candidate stage + 2.5% graduation year + 5% location (remote roles always fit). Must-have skills and the minimum score act as filters. Student and employer forms use the same lists (role areas, position types, timing, stages, fields of study, skills) so the comparison is like for like.
+
+CVs are PDFs (max 5 MB) in a private Supabase Storage bucket `cvs`: students manage their own file, admins read all, employers read only CVs of students in their shortlist.
 
 ## Folders
 
 | Folder | What it is |
 | --- | --- |
 | `web/` | **The real app.** Runs on Supabase with email sign-up. Published to GitHub Pages. |
-| `supabase/setup.sql`, `supabase/02_hardening.sql` | Database setup (run in order): tables, privacy rules (row-level security), server-side scoring, sample students. Run once in Supabase's SQL Editor. |
+| `supabase/setup.sql`, `02_hardening.sql`, `03_profile_v2.sql` | Database setup (run in order): tables, privacy rules (row-level security), server-side scoring, sample students. Run once in Supabase's SQL Editor. |
 | `claude-pilot/` | The earlier prototype that runs inside claude.ai (uses its built-in database). Kept for reference. |
 | `seed/` | The 8 fictional sample students as JSON. |
 

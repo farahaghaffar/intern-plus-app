@@ -206,6 +206,11 @@ tr:last-child td{border-bottom:none}
 @media (max-width:820px){.scorestrip{grid-template-columns:1fr}}
 .scorestrip .paper .bars{margin-top:14px}
 .pilotnote{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:22px;color:var(--ink-faint);font-size:0.84rem}
+.fsec{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:700;margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
+.sgroups{display:flex;flex-direction:column;gap:12px}
+.sgroup{display:flex;flex-direction:column;gap:6px}
+.sglabel{font-size:0.74rem;color:var(--ink-faint);font-weight:600}
+.f input[type=file]{padding:9px;cursor:pointer}
 .acctmail{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (max-width:640px){.acctmail{display:none}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--accent-ink);font-weight:700;padding:10px 16px;border-radius:10px;z-index:50;font-size:0.88rem}
@@ -226,11 +231,61 @@ tr:last-child td{border-bottom:none}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script>
 /* ---------- CONTENT ---------- */
-const UNIS=['AUC','GUC','Cairo University','Ain Shams University','Alexandria University','BUE','Helwan University','Other'];
-const MAJORS=['Business Administration','Commerce','Marketing','Economics','Computer Science','Engineering','Mass Communication','Other'];
-const YEARS=['2025','2026','2027','2028'];
-const CITIES=['Cairo','Giza','Alexandria','Other'];
-const SKILLS=['Excel','Power BI','SQL','Python','Data analysis','Social media','Content writing','Copywriting','Sales','Customer service','Canva','Adobe Creative Suite','Project management','Public speaking','Research','Accounting','HR basics','Arabic/English bilingual'];
+/* ---------- CONTENT: lists ---------- */
+const UNI_GROUPS=[
+ ['Public universities',['Cairo University','Ain Shams University','Alexandria University','Helwan University','Al-Azhar University','Mansoura University','Zagazig University','Tanta University','Assiut University','Minia University','Menoufia University','Suez Canal University','South Valley University','Beni-Suef University','Fayoum University','Benha University','Kafrelsheikh University','Sohag University','Port Said University','Damanhour University','Aswan University','Damietta University','University of Sadat City','Suez University','Arish University','New Valley University','Matrouh University','Luxor University','Hurghada University']],
+ ['Private universities',['American University in Cairo (AUC)','German University in Cairo (GUC)','British University in Egypt (BUE)','Misr International University (MIU)','Misr University for Science and Technology (MUST)','October 6 University','Modern Sciences and Arts University (MSA)','Future University in Egypt (FUE)','Nile University','Pharos University in Alexandria','Ahram Canadian University (ACU)','Sinai University','Egyptian Russian University','Delta University for Science and Technology','Heliopolis University','Badr University in Cairo (BUC)','Nahda University','Deraya University','Horus University','Egyptian Chinese University','Sphinx University','Badya University','Merit University','Al-Ryada University for Science and Technology','Modern University for Technology and Information (MTI)','New Giza University (NGU)','Université Française d\'Égypte (UFE)','Egyptian E-Learning University','Arab Open University (Egypt)']],
+ ['National and international universities',['Galala University','King Salman International University','El Alamein International University','New Mansoura University','Egypt-Japan University of Science and Technology (E-JUST)','Zewail City of Science and Technology','Egypt University of Informatics (EUI)','Arab Academy for Science, Technology and Maritime Transport (AASTMT)','The Knowledge Hub Universities (TKH, Coventry)','Universities of Canada in Egypt','Global Academic Foundation (University of Hertfordshire)','University of East London in Egypt','Canadian International College (CIC)','Akhbar El Yom Academy','Helwan Technological University']],
+ ['Not listed',['Other university in Egypt','University abroad']]];
+const UNIS=UNI_GROUPS.flatMap(g=>g[1]);
+const UNI_TEXT=['Other university in Egypt','University abroad'];
+const CITY_GROUPS=[
+ ['Cairo',['New Cairo','Nasr City','Heliopolis','Maadi','Downtown Cairo','Zamalek','Shorouk City','Madinaty','Rehab City','Mokattam','New Administrative Capital','Helwan','Other area in Cairo']],
+ ['Giza',['6th of October','Sheikh Zayed','Dokki','Mohandessin','Haram','Agouza','Other area in Giza']],
+ ['Alexandria',['Alexandria','Borg El Arab']],
+ ['Delta',['Banha (Qalyubia)','Shubra El Kheima (Qalyubia)','Obour City (Qalyubia)','Zagazig (Sharqia)','10th of Ramadan (Sharqia)','Mansoura (Dakahlia)','Tanta (Gharbia)','El Mahalla (Gharbia)','Shebin El Kom (Menoufia)','Sadat City (Menoufia)','Damanhour (Beheira)','Kafr El Sheikh','Damietta']],
+ ['Canal and Sinai',['Port Said','Ismailia','Suez','Arish (North Sinai)','Sharm El Sheikh (South Sinai)']],
+ ['Upper Egypt',['Fayoum','Beni Suef','Minya','Assiut','Sohag','Qena','Luxor','Aswan']],
+ ['Coast and desert',['Hurghada (Red Sea)','El Gouna (Red Sea)','Marsa Matrouh','El Alamein (Matrouh)','Kharga (New Valley)']],
+ ['Other',['Outside Egypt']]];
+const CITIES=CITY_GROUPS.flatMap(g=>g[1]);
+const REGIONS=CITY_GROUPS.map(g=>g[0]).filter(r=>r!=='Other');
+const regionOf=c=>(CITY_GROUPS.find(g=>g[1].includes(c))||[''])[0];
+const MAJOR_GROUPS=[
+ ['Business & Economics',['Business Administration','Accounting','Finance','Marketing','Management Information Systems (MIS)','Economics','Commerce','International Business','Entrepreneurship','Supply Chain & Logistics','Human Resources Management','Hospitality & Tourism Management']],
+ ['Computing & IT',['Computer Science','Computer Engineering','Software Engineering','Information Systems','Information Technology','Data Science','Artificial Intelligence','Cybersecurity','Business Informatics','Media Engineering & Technology']],
+ ['Engineering & Architecture',['Civil Engineering','Mechanical Engineering','Electrical Engineering','Electronics & Communications Engineering','Mechatronics Engineering','Chemical Engineering','Petroleum Engineering','Industrial Engineering','Biomedical Engineering','Energy & Renewable Energy Engineering','Aerospace Engineering','Architecture']],
+ ['Media & Communication',['Mass Communication','Journalism','Public Relations','Advertising','Digital Media','Film & Television','Integrated Marketing Communication']],
+ ['Design & Arts',['Graphic Design','Interior Design','Product Design','Fashion Design','Fine Arts','Applied Arts','Animation & Multimedia','Music']],
+ ['Health & Life Sciences',['Medicine','Dentistry','Pharmacy','Nursing','Physical Therapy','Veterinary Medicine','Biotechnology','Biology','Nutrition']],
+ ['Sciences & Maths',['Chemistry','Physics','Mathematics','Statistics','Geology','Environmental Science']],
+ ['Law, Politics & Humanities',['Law','Political Science','International Relations','Public Policy','Psychology','Sociology','English Literature','Translation & Languages','Arabic Language','History','Philosophy','Archaeology & Egyptology','Education']],
+ ['Other fields',['Agriculture','Sports Science','Other']]];
+const MAJORS=MAJOR_GROUPS.flatMap(g=>g[1]);
+const FIELDS=MAJOR_GROUPS.map(g=>g[0]);
+const fieldOf=m=>(MAJOR_GROUPS.find(g=>g[1].includes(m))||[''])[0];
+const YEARS=['2022','2023','2024','2025','2026','2027','2028','2029','2030'];
+const SKILL_GROUPS=[
+ ['AI & automation',['AI Tools (ChatGPT, Claude, Gemini)','Prompt Engineering','AI Automation (Zapier, Make, n8n)','Vibe Coding','AI Content & Image Generation','Machine Learning']],
+ ['Marketing & growth',['Growth Marketing','Digital Marketing','Performance Ads (Meta, Google, TikTok)','SEO','Content Creation','Copywriting','Social Media Management','Email Marketing','Brand Strategy','Market Research']],
+ ['Sales & business',['Sales','Business Development','Customer Service','Negotiation','CRM Tools (HubSpot, Salesforce)','Public Speaking','Presentation Skills','E-commerce (Shopify)']],
+ ['Data & analytics',['Excel / Spreadsheets','Data Analysis','SQL','Power BI','Tableau','Python','Statistics','Google Analytics','Financial Modeling']],
+ ['Tech & product',['Basic Coding','Web Development (HTML, CSS, JavaScript)','Frontend (React)','Backend Development','Mobile App Development','UI/UX Design','No-code Tools (Webflow, Bubble)','Product Management','Cloud Basics','Cybersecurity Basics']],
+ ['Design & media',['Graphic Design','Canva','Adobe Photoshop / Illustrator','Figma','Video Editing','Motion Graphics','Photography','AutoCAD / SketchUp / 3ds Max']],
+ ['Operations, finance & people',['Project Coordination','Project Management','Operations','Supply Chain','Accounting / Finance','HR & Recruitment','Event Planning']],
+ ['Languages',['Arabic & English (fluent)','French','German','Spanish','Chinese']]];
+const SKILLS=SKILL_GROUPS.flatMap(g=>g[1]);
+const STATUS_NOW=[['student','Current student'],['fresh_grad','Fresh graduate'],['working','Working, looking for a new opportunity']];
+const statusLabel=k=>(STATUS_NOW.find(x=>x[0]===k)||['',''])[1];
+const ROLE_AREAS=['Marketing','Sales','Business Development','Data & Analytics','Content & Social Media','Design','Graphic Design','Interior Design','Operations','Finance & Accounting','HR & Recruitment','Tech','Engineering','Not sure yet'];
+const POSITION_TYPES=['Internship (Paid)','Internship (for experience / credit)','Entry-level full-time job','Entry-level part-time job','Freelance','Project Based'];
+const AVAILABILITY=['Immediately','Within 1 month','Within 3 months','After I graduate'];
+const DURATIONS=[['year_round','Year-round (alongside or after my studies)'],['breaks','Summer or winter breaks only'],['either','Either works for me']];
+const durationLabel=k=>(DURATIONS.find(x=>x[0]===k)||['',''])[1];
+const ROLE_DURATIONS=[['year_round','Year-round'],['summer','Summer break'],['winter','Winter break']];
+const roleDurationLabel=k=>(ROLE_DURATIONS.find(x=>x[0]===k)||['',''])[1];
+const ROLE_STARTS=['Immediately','Within 1 month','Within 3 months','Flexible'];
+const WORK_MODES=['On-site','Hybrid','Remote'];
 const CATS=[
  {k:'comm',name:'Communication',w:0.20},
  {k:'prob',name:'Problem solving',w:0.20},
@@ -281,21 +336,29 @@ function blockers(s,r){
   if(scoreOf(s)<(+r.minScore||0))out.push(`score below the ${r.minScore} minimum`);
   return out;
 }
+// Match % = 35 skills + 25 Intern+ score + 10 field of study + 10 role area + 10 position type and timing + 5 stage and year + 5 location
 function match(s,r,loose){
   const sk=new Set(s.skills||[]);const must=r.must||[],nice=r.nice||[];
   if(!loose&&blockers(s,r).length)return null;
   const score=scoreOf(s);
   const req=[...must,...nice];const hit=req.filter(x=>sk.has(x));const miss=req.filter(x=>!sk.has(x));
   const skills=req.length?hit.length/req.length*100:100;
-  const majorFit=!(r.majors||[]).length||(r.majors||[]).includes(s.major)?100:0;
-  const gy=(r.years||[]);const gyFit=!gy.length||gy.includes(String(s.gradYear))?100:gy.some(y=>Math.abs(+y-(+s.gradYear))===1)?50:0;
-  const locFit=!r.location||r.location==='Any'||r.location===s.location?100:0;
-  const m=Math.round(0.40*skills+0.30*score+0.15*majorFit+0.10*gyFit+0.05*locFit);
+  const fields=r.fields||[];const fieldFit=!fields.length||fields.includes(fieldOf(s.major))?100:0;
+  const ints=s.roleInterests||[];const areaFit=!r.category?100:ints.includes(r.category)?100:ints.includes('Not sure yet')?50:0;
+  const typeFit=!r.positionType||(s.positionTypes||[]).includes(r.positionType)?100:0;
+  const d=s.duration;const durFit=!r.duration||d==='either'||(r.duration==='year_round'?d==='year_round':d==='breaks')?100:0;
+  const stages=r.stages||[];const stageFit=!stages.length||stages.includes(s.statusNow)?100:0;
+  const gy=r.years||[];const gyFit=!gy.length||gy.includes(String(s.gradYear))?100:gy.some(y=>Math.abs(+y-(+s.gradYear))===1)?50:0;
+  const locFit=r.workMode==='Remote'||!r.location||r.location==='Any'||regionOf(s.location)===r.location?100:0;
+  const m=Math.round(0.35*skills+0.25*score+0.10*fieldFit+0.10*areaFit+0.05*typeFit+0.05*durFit+0.025*stageFit+0.025*gyFit+0.05*locFit);
   const parts=[];
   parts.push(req.length?`Has ${hit.length} of ${req.length} requested skills${hit.length?' ('+hit.slice(0,4).join(', ')+')':''}`:'No specific skills requested');
   parts.push(`Intern+ score ${score}, ${band(score)}`);
-  if((r.majors||[]).length)parts.push(majorFit?`${s.major} matches the major you asked for`:`${s.major} is outside the majors you listed`);
-  return {m,why:parts.join('. ')+'.',miss};
+  if(r.category)parts.push(areaFit===100?`wants ${r.category} roles`:areaFit===50?'open to any role area':`prefers ${ints.filter(x=>x!=='Not sure yet').slice(0,2).join(', ')||'other areas'}`);
+  if(fields.length)parts.push(fieldFit?`${s.major} fits the fields you asked for`:`${s.major} is outside the fields you listed`);
+  if(r.positionType&&!typeFit)parts.push(`not looking for ${r.positionType.toLowerCase()}`);
+  if(r.duration&&!durFit)parts.push(d==='breaks'?'only available in summer or winter breaks':'looking for a year-round role');
+  return {m,why:parts.map(x=>x[0].toUpperCase()+x.slice(1)).join('. ')+'.',miss};
 }
 function ranked(r){
   return [...state.students.values()].filter(s=>s.status==='completed').map(s=>({s,x:match(s,r)})).filter(o=>o.x).sort((a,b)=>b.x.m-a.x.m);
@@ -308,8 +371,8 @@ const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 
 /* ---------- STATE ---------- */
 const state={session:null,me:null,userRole:null,canEdit:false,ready:false,auth:{mode:'signin',msg:'',err:''},recovery:false,
-  students:new Map(),employers:new Map(),applications:new Map(),openings:new Map(),talent:new Map(),tf:{},tRole:null,empTab:'talent',
-  tab:'home',draft:{},role:{must:[],nice:[],majors:[],years:[]},skills:[],err:'',qi:null,pick:{},confirmClear:false};
+  students:new Map(),employers:new Map(),applications:new Map(),openings:new Map(),talent:new Map(),cvUrls:{},multi:null,cvFile:null,saving:false,tf:{},tRole:null,empTab:'talent',
+  tab:'home',draft:{},role:{must:[],nice:[],fields:[],stages:[],years:[]},skills:[],err:'',qi:null,pick:{},confirmClear:false};
 try{const t=localStorage.getItem('ip_tab');if(t&&t!=='admin')state.tab=t;}catch(e){}
 if(location.hash==='#admin')state.tab='admin';
 window.addEventListener('hashchange',()=>{if(location.hash==='#admin'){state.tab='admin';draw();}});
@@ -369,11 +432,13 @@ function recoveryForm(){
 }
 
 /* ---------- DATA ---------- */
-const mapStudent=r=>({id:r.id,name:r.name,email:r.email,phone:r.phone,location:r.location,university:r.university,major:r.major,gradYear:r.grad_year,cv:r.cv,
+const mapStudent=r=>({id:r.id,name:r.name,email:r.email,phone:r.phone,location:r.location,university:r.university,universityOther:r.university_other||'',major:r.major,majorOther:r.major_other||'',gradYear:r.grad_year,
+  statusNow:r.status_now,roleInterests:r.role_interests||[],positionTypes:r.position_types||[],availability:r.availability,duration:r.duration,goals:r.goals||'',linkedin:r.linkedin||'',uniqueSkill:r.unique_skill||'',cvPath:r.cv_path,
   internships:r.internships,projects:r.projects,activities:r.activities,skills:r.skills||[],consent:r.consent,visible:r.visible,code:r.code,cohort:r.cohort,
   status:r.status,answers:r.answers||{},scores:r.scores,total:r.total,override:r.override,survey:r.survey,sample:r.sample});
 const mapRole=r=>({id:r.id,eid:r.employer_id,title:r.title,company:r.company,location:r.location,minScore:r.min_score,must:r.must||[],nice:r.nice||[],
-  majors:r.majors||[],years:r.years||[],ats:r.ats,status:r.status,createdAt:Date.parse(r.created_at),requests:{},shortlist:{}});
+  fields:r.fields||[],stages:r.stages||[],category:r.category||'',positionType:r.position_type||'',duration:r.duration||'',startWhen:r.start_when||'',workMode:r.work_mode||'',
+  years:r.years||[],ats:r.ats,status:r.status,createdAt:Date.parse(r.created_at),requests:{},shortlist:{}});
 async function q(p){const {data,error}=await p;if(error)throw error;return data||[];}
 async function load(){
   if(!sb||!state.session){draw();return;}
@@ -401,7 +466,10 @@ async function load(){
     const am=new Map();for(const x of apps){if(!am.has(x.student_id))am.set(x.student_id,{id:x.student_id,roles:{}});am.get(x.student_id).roles[x.role_id]={at:Date.parse(x.created_at)};}
     state.applications=am;
     state.openings=new Map(openings.map(r=>[r.id,{...mapRole({...r,employer_id:null,status:'live',created_at:r.published_at})}]));
-    state.talent=new Map(talent.map(r=>[r.id,{id:r.id,university:r.university,major:r.major,gradYear:r.grad_year,location:r.location,skills:r.skills||[],total:r.total,scores:r.scores,sample:r.sample}]));
+    state.talent=new Map(talent.map(r=>[r.id,{id:r.id,university:r.university,major:r.major,gradYear:r.grad_year,location:r.location,skills:r.skills||[],total:r.total,scores:r.scores,sample:r.sample,
+      statusNow:r.status_now,roleInterests:r.role_interests||[],positionTypes:r.position_types||[],duration:r.duration,availability:r.availability}]));
+    const paths=[...new Set([...students.map(x=>x.cv_path),...sl.map(x=>x.card?.cvPath)].filter(Boolean))].filter(x=>!state.cvUrls[x]);
+    if(paths.length&&(isAdmin||role==='employer')){const {data}=await sb.storage.from('cvs').createSignedUrls(paths,7*24*3600);for(const u of data||[])if(u.signedUrl)state.cvUrls[u.path]=u.signedUrl;}
   }catch(e){console.error(e);toast('Could not load data. Refresh the page to try again.');}
   render();
 }
@@ -497,38 +565,65 @@ function openRoles(s){
   const rows=roles.map(({r,x,b})=>{
     const app=mine[r.id];
     const btn=app?`<span class="status review">Applied</span><span class="sub">Intern+ reviews every application and contacts you if you are shortlisted.</span>`:b.length?`<span class="sub">Not eligible yet: ${esc(b.join('; '))}</span>`:`<button class="btn btn-dark" data-apply="${r.id}">Apply</button>`;
-    return `<div class="cand"><div><div class="nm">${esc(r.title)}</div><div class="meta">${esc(r.company)} · ${esc(r.location||'Any')}</div></div>
+    return `<div class="cand"><div><div class="nm">${esc(r.title)}</div><div class="meta">${esc(r.company)} · ${esc(roleFacts(r))}</div></div>
      <div class="score">${b.length?'n/a':x.m+'%'}<small>your match</small></div>
      <div class="why">${b.length?'':esc(x.why)}</div>${!b.length&&x.miss.length?`<div class="gap">To strengthen your fit: ${esc(x.miss.join(', '))}</div>`:''}
      <div class="ctl">${btn}</div></div>`;}).join('');
   return `<div class="paper stack" style="margin-top:18px"><div><h2>Open roles</h2><p class="sub">Ranked by how well each role fits your profile. When you apply, the Intern+ team reviews your profile before anything is shared with the employer.</p></div>
    ${rows||'<p class="sub">No open roles yet. New roles from pilot employers appear here.</p>'}</div>`;
 }
+function optGroups(groups,val,ph){return `<option value="">${ph}</option>`+groups.map(([g,items])=>`<optgroup label="${esc(g)}">${items.map(x=>`<option${String(val)===x?' selected':''}>${esc(x)}</option>`).join('')}</optgroup>`).join('');}
+function optPairs(pairs,val,ph){return `<option value="">${ph}</option>`+pairs.map(([k,l])=>`<option value="${esc(k)}"${String(val)===k?' selected':''}>${esc(l)}</option>`).join('');}
+function chipsMulti(list,key){const a=state.multi[key]||[];return list.map(k=>`<span class="chip${a.includes(k)?' on':''}" tabindex="0" role="button" aria-pressed="${a.includes(k)}" data-multi="${key}" data-val="${esc(k)}">${esc(k)}</span>`).join('');}
+function skillGroups(chip){return `<div class="sgroups">${SKILL_GROUPS.map(([g,items])=>`<div class="sgroup"><span class="sglabel">${esc(g)}</span><div class="chips">${items.map(chip).join('')}</div></div>`).join('')}</div>`;}
 function profileForm(s){
   const d=state.draft;const v=k=>esc(d[k]??s?.[k]??'');const sel=k=>d[k]??s?.[k]??'';
-  if(state.skills===null)state.skills=[...(s?.skills||[])];
+  if(state.skills===null||!state.multi){state.skills=[...(s?.skills||[])];state.multi={roleInterests:[...(s?.roleInterests||[])],positionTypes:[...(s?.positionTypes||[])]};}
+  const uni=sel('university'),maj=sel('major');
+  const cvNote=state.cvFile?`Selected: ${esc(state.cvFile.name)}`:s?.cvPath?'Your CV is uploaded. Choose a new file to replace it.':'PDF only, up to 5 MB.';
   return `<form class="panel stack" id="profileForm" novalidate>
-  <h2 style="font-size:1.15rem">Your profile</h2>
+  <div><h2 style="font-size:1.15rem">Your profile</h2><p class="small muted">Questions marked * are required. It takes about 5 minutes.</p></div>
+  <h3 class="fsec">About you</h3>
   <div class="grid2">
-   <label class="f">Full name<input id="p-name" data-d="name" value="${v('name')}" autocomplete="name" required></label>
-   <label class="f">Email<input id="p-email" data-d="email" type="email" value="${v('email')}" autocomplete="email" required></label>
-   <label class="f">Mobile (WhatsApp)<input id="p-phone" data-d="phone" value="${v('phone')}" autocomplete="tel"></label>
-   <label class="f">City<select id="p-location" data-d="location">${opt(CITIES,sel('location'),'Choose city')}</select></label>
-   <label class="f">University<select id="p-university" data-d="university">${opt(UNIS,sel('university'),'Choose university')}</select></label>
-   <label class="f">Major<select id="p-major" data-d="major">${opt(MAJORS,sel('major'),'Choose major')}</select></label>
-   <label class="f">Graduation year<select id="p-gradYear" data-d="gradYear">${opt(YEARS,sel('gradYear'),'Choose year')}</select></label>
-   <label class="f">CV link (Google Drive or LinkedIn)<input id="p-cv" data-d="cv" value="${v('cv')}" placeholder="https://"></label>
+   <label class="f">Full name *<input id="p-name" data-d="name" value="${v('name')}" autocomplete="name"></label>
+   <label class="f">Email *<input id="p-email" data-d="email" type="email" value="${v('email')||esc(state.session?.user?.email||'')}" autocomplete="email"></label>
+   <label class="f">Mobile (WhatsApp)<input id="p-phone" data-d="phone" value="${v('phone')}" autocomplete="tel" placeholder="+20 1xx xxx xxxx"></label>
+   <label class="f">City or area *<select id="p-location" data-d="location">${optGroups(CITY_GROUPS,sel('location'),'Choose where you live')}</select></label>
   </div>
-  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Skills you can already use (pick all that apply)</span>
-   <div class="chips">${SKILLS.map(k=>`<span class="chip${state.skills.includes(k)?' on':''}" tabindex="0" role="button" aria-pressed="${state.skills.includes(k)}" data-skill="${esc(k)}">${esc(k)}</span>`).join('')}</div></div>
+  <h3 class="fsec">Where you are now</h3>
+  <div class="grid2">
+   <label class="f">Where are you now? *<select id="p-status" data-d="statusNow">${optPairs(STATUS_NOW,sel('statusNow'),'Choose one')}</select></label>
+   <label class="f">Graduation year (or expected) *<select id="p-gradYear" data-d="gradYear">${opt(YEARS,sel('gradYear'),'Choose year')}</select></label>
+   <label class="f">University *<select id="p-university" data-d="university">${optGroups(UNI_GROUPS,uni,'Choose your university')}</select></label>
+   ${UNI_TEXT.includes(uni)?`<label class="f">${uni==='University abroad'?'University name and country *':'University name *'}<input id="p-uniOther" data-d="universityOther" value="${v('universityOther')}" placeholder="${uni==='University abroad'?'e.g. University of Toronto, Canada':'Full university name'}"></label>`:''}
+   <label class="f">Major *<select id="p-major" data-d="major">${optGroups(MAJOR_GROUPS,maj,'Choose your major')}</select></label>
+   ${maj==='Other'?`<label class="f">Your major *<input id="p-majorOther" data-d="majorOther" value="${v('majorOther')}"></label>`:''}
+  </div>
+  <h3 class="fsec">What you're looking for</h3>
+  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">What kind of role are you looking for? * (pick all that apply)</span><div class="chips">${chipsMulti(ROLE_AREAS,'roleInterests')}</div></div>
+  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">What type of position? * (pick all that apply)</span><div class="chips">${chipsMulti(POSITION_TYPES,'positionTypes')}</div></div>
+  <div class="grid2">
+   <label class="f">When could you start? *<select id="p-avail" data-d="availability">${opt(AVAILABILITY,sel('availability'),'Choose one')}</select></label>
+   <label class="f">Are you looking for a year-round role, or only during breaks? *<select id="p-duration" data-d="duration">${optPairs(DURATIONS,sel('duration'),'Choose one')}</select></label>
+  </div>
+  <label class="f">In one or two sentences, what kind of work do you actually want to do?<textarea id="p-goals" data-d="goals" maxlength="400">${v('goals')}</textarea></label>
+  <h3 class="fsec">Skills and experience</h3>
+  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Which skills do you actually have? * (pick all that apply)</span>
+   ${skillGroups(k=>`<span class="chip${state.skills.includes(k)?' on':''}" tabindex="0" role="button" aria-pressed="${state.skills.includes(k)}" data-skill="${esc(k)}">${esc(k)}</span>`)}</div>
+  <label class="f">A unique skill that many don't have<input id="p-unique" data-d="uniqueSkill" value="${v('uniqueSkill')}" maxlength="120" placeholder="e.g. fluent in Japanese, built a 10k-follower TikTok"></label>
   <div class="grid3">
    <label class="f">Internships completed<input id="p-int" data-d="internships" type="number" min="0" max="10" value="${v('internships')||0}"></label>
    <label class="f">Projects (class, freelance, personal)<input id="p-proj" data-d="projects" type="number" min="0" max="20" value="${v('projects')||0}"></label>
    <label class="f">Activities (clubs, volunteering, MUN)<input id="p-act" data-d="activities" type="number" min="0" max="20" value="${v('activities')||0}"></label>
   </div>
-  <label class="check"><input type="checkbox" id="p-consent" ${(state.draft.consent??s?.consent)?'checked':''}> I agree that Intern+ may store my profile and assessment results, and share them with a pilot employer, including in their hiring system, only when I am shortlisted for their role.</label>
+  <h3 class="fsec">CV and links</h3>
+  <div class="grid2">
+   <label class="f">Upload your CV *<input id="p-cvfile" type="file" accept="application/pdf,.pdf"><span class="small faint" style="font-weight:500">${cvNote}</span></label>
+   <label class="f">LinkedIn or portfolio *<input id="p-linkedin" data-d="linkedin" value="${v('linkedin')}" placeholder="https://linkedin.com/in/..."></label>
+  </div>
+  <label class="check"><input type="checkbox" id="p-consent" ${(state.draft.consent??s?.consent)?'checked':''}> Yes, Intern+ may store my profile, assessment results and CV, and share them with employers it thinks are a good fit, including in their hiring systems.</label>
   ${state.err?`<p class="err">${esc(state.err)}</p>`:''}
-  <div class="row"><button class="btn btn-accent" type="submit">${s?'Save profile':'Save and continue'}</button>${s?`<button class="btn btn-ghost" type="button" data-act="cancelEdit">Cancel</button>`:''}</div>
+  <div class="row"><button class="btn btn-accent" type="submit" ${state.saving?'disabled':''}>${state.saving?'Saving…':s?'Save profile':'Save and continue'}</button>${s?`<button class="btn btn-ghost" type="button" data-act="cancelEdit">Cancel</button>`:''}</div>
   </form>`;
 }
 function codeForm(){
@@ -586,14 +681,14 @@ function talentView(){
   if(state.tRole&&!roles.some(r=>r.id===state.tRole))state.tRole='';
   if(state.tRole==null)state.tRole=roles[0]?.id||'';
   const role=roles.find(r=>r.id===state.tRole);const f=state.tf;
-  const list=[...state.talent.values()].filter(t=>(!f.uni||t.university===f.uni)&&(!f.major||t.major===f.major)&&(!f.year||String(t.gradYear)===f.year)&&(!f.skill||(t.skills||[]).includes(f.skill))&&(!f.min||t.total>=+f.min))
+  const list=[...state.talent.values()].filter(t=>(!f.uni||t.university===f.uni)&&(!f.field||fieldOf(t.major)===f.field)&&(!f.year||String(t.gradYear)===f.year)&&(!f.skill||(t.skills||[]).includes(f.skill))&&(!f.min||t.total>=+f.min)&&(!f.stage||t.statusNow===f.stage)&&(!f.area||(t.roleInterests||[]).includes(f.area))&&(!f.region||regionOf(t.location)===f.region))
     .map(t=>({t,x:role?match(t,role,true):null})).sort((a,b)=>role?b.x.m-a.x.m:b.t.total-a.t.total);
-  const sel=(k,items,ph)=>`<label class="f">${ph}<select data-tf="${k}"><option value="">Any</option>${items.map(x=>`<option${f[k]===x?' selected':''}>${esc(x)}</option>`).join('')}</select></label>`;
+  const sel=(k,groups,ph)=>`<label class="f">${ph}<select data-tf="${k}">${optGroups(groups,f[k]||'','Any')}</select></label>`;
   const cards=list.map(({t,x})=>{
     const req=role?.requests?.[t.id],inSl=role?.shortlist?.[t.id];
     const act=!role?`<span class="sub">Create a role to request an intro.</span>`:inSl?`<span class="status sent">In your shortlist</span>`:req?`<span class="status review">Intro requested</span><span class="sub">Intern+ will confirm and share contact details.</span>`:`<button class="btn btn-dark" data-intro="${t.id}">Request intro</button>`;
     const b=role?blockers(t,role):[];
-    return `<div class="cand"><div><div class="nm">${alias(t.id)} ${t.sample?'<span class="sample">Sample</span>':''}</div><div class="meta">${esc(t.university)} · ${esc(t.major)} · Class of ${esc(t.gradYear)} · ${esc(t.location)}</div></div>
+    return `<div class="cand"><div><div class="nm">${alias(t.id)} ${t.sample?'<span class="sample">Sample</span>':''}</div><div class="meta">${esc(t.university)} · ${esc(t.major)} · Class of ${esc(t.gradYear)} · ${esc(t.location)}</div><div class="meta">${esc(studentFacts(t))}</div></div>
      <div class="score">${role?x.m+'%':t.total}<small>${role?'match':'Intern+ score'}</small></div>
      <div class="why">${role?esc(x.why):`Intern+ score ${t.total}, ${esc(band(t.total))}.`} Skills: ${esc((t.skills||[]).join(', '))}.</div>
      ${role&&b.length?`<div class="gap">Note: ${esc(b.join('; '))}</div>`:role&&x.miss.length?`<div class="gap">Missing: ${esc(x.miss.join(', '))}</div>`:''}
@@ -601,10 +696,12 @@ function talentView(){
   return `<div class="panel stack">
    <div class="grid3">
     <label class="f">Rank against role<select data-trole="1"><option value="">No role, rank by score</option>${roles.map(r=>`<option value="${r.id}"${r.id===state.tRole?' selected':''}>${esc(r.title)}</option>`).join('')}</select></label>
-    ${sel('uni',UNIS.filter(u=>u!=='Other'),'University')}${sel('major',MAJORS.filter(m=>m!=='Other'),'Major')}
-    ${sel('year',YEARS,'Graduation year')}${sel('skill',SKILLS,'Has skill')}${sel('min',['60','70','80','90'],'Minimum score')}
+    ${sel('area',[['Role area',ROLE_AREAS.filter(a=>a!=='Not sure yet')]],'Wants roles in')}
+    <label class="f">Stage<select data-tf="stage">${optPairs(STATUS_NOW,f.stage||'','Any')}</select></label>
+    ${sel('field',[['Field',FIELDS]],'Field of study')}${sel('uni',UNI_GROUPS.slice(0,3),'University')}${sel('year',[['Year',YEARS]],'Graduation year')}
+    ${sel('region',[['Region',REGIONS]],'Lives in')}${sel('skill',SKILL_GROUPS,'Has skill')}${sel('min',[['Score',['60','70','80','90']]],'Minimum score')}
    </div>
-   <p class="small muted">${list.length} assessed student${list.length===1?'':'s'} visible. Profiles are anonymous: names and contact details are shared only after Intern+ confirms an intro.</p></div>
+   <p class="small muted">${list.length} assessed student${list.length===1?'':'s'} visible. Profiles are anonymous: names, contact details and CVs are shared only after Intern+ confirms an intro.</p></div>
    <div class="paper stack" style="gap:10px">${cards||'<p class="sub">No students match these filters yet.</p>'}</div>`;
 }
 
@@ -622,46 +719,64 @@ function viewEmployer(){
 }
 function chipRow(list,key){
   const r=state.role;
-  if(key==='skill')return list.map(k=>{const m=r.must.includes(k),n=r.nice.includes(k);return `<span class="chip${m?' must':n?' on':''}" tabindex="0" role="button" data-rskill="${esc(k)}">${esc(k)}</span>`;}).join('');
-  return list.map(k=>`<span class="chip${r[key].includes(k)?' on':''}" tabindex="0" role="button" data-rlist="${key}" data-val="${esc(k)}">${esc(k)}</span>`).join('');
+  if(key==='skill')return skillGroups(k=>{const m=r.must.includes(k),n=r.nice.includes(k);return `<span class="chip${m?' must':n?' on':''}" tabindex="0" role="button" data-rskill="${esc(k)}">${esc(k)}</span>`;});
+  return `<div class="chips">${list.map(it=>{const [k,l]=Array.isArray(it)?it:[it,it];return `<span class="chip${r[key].includes(k)?' on':''}" tabindex="0" role="button" data-rlist="${key}" data-val="${esc(k)}">${esc(l)}</span>`;}).join('')}</div>`;
 }
 function roleForm(){
   const d=state.draft;const v=k=>esc(d[k]??'');
   return `<form class="panel stack" id="roleForm" novalidate>
-  <h2 style="font-size:1.15rem">New role brief</h2>
+  <div><h2 style="font-size:1.15rem">New role brief</h2><p class="small muted">These questions mirror what students answer, so every candidate is ranked on the same terms. Questions marked * are required.</p></div>
+  <h3 class="fsec">The role</h3>
   <div class="grid2">
-   <label class="f">Role title<input id="r-title" data-d="rtitle" value="${v('rtitle')}" placeholder="e.g. Growth Marketing Intern"></label>
-   <label class="f">Company<input id="r-company" data-d="rcompany" value="${v('rcompany')||esc(myEmployer()?.company||'')}"></label>
-   <label class="f">Location<select id="r-location" data-d="rlocation">${['Any',...CITIES.filter(c=>c!=='Other')].map(c=>`<option${(d.rlocation||'Any')===c?' selected':''}>${c}</option>`).join('')}</select></label>
-   <label class="f">Minimum Intern+ score<input id="r-min" data-d="rmin" type="number" min="0" max="100" value="${v('rmin')||60}"></label>
+   <label class="f">Role title *<input id="r-title" data-d="rtitle" value="${v('rtitle')}" placeholder="e.g. Growth Marketing Intern"></label>
+   <label class="f">Company *<input id="r-company" data-d="rcompany" value="${v('rcompany')||esc(myEmployer()?.company||'')}"></label>
+   <label class="f">Role area *<select id="r-cat" data-d="rcategory">${opt(ROLE_AREAS.filter(x=>x!=='Not sure yet'),d.rcategory||'','Choose one')}</select></label>
+   <label class="f">Position type *<select id="r-type" data-d="rtype">${opt(POSITION_TYPES,d.rtype||'','Choose one')}</select></label>
+   <label class="f">Timing *<select id="r-duration" data-d="rduration">${optPairs(ROLE_DURATIONS,d.rduration||'','Choose one')}</select></label>
+   <label class="f">Start date<select id="r-start" data-d="rstart">${opt(ROLE_STARTS,d.rstart||'','Choose one')}</select></label>
+   <label class="f">Work mode *<select id="r-mode" data-d="rmode">${opt(WORK_MODES,d.rmode||'','Choose one')}</select></label>
+   <label class="f">Location<select id="r-location" data-d="rlocation">${opt(REGIONS,d.rlocation||'','Anywhere in Egypt')}</select></label>
   </div>
-  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Skills: tap once for nice-to-have, twice for must-have, three times to clear</span><div class="chips">${chipRow(SKILLS,'skill')}</div></div>
-  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Majors (leave empty for any)</span><div class="chips">${chipRow(MAJORS.filter(m=>m!=='Other'),'majors')}</div></div>
-  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Graduation years (leave empty for any)</span><div class="chips">${chipRow(YEARS,'years')}</div></div>
-  <label class="f">Which hiring system (ATS) do you use, if any?<input id="r-ats" data-d="rats" value="${v('rats')}" placeholder="e.g. Workable, Zoho Recruit, none"></label>
+  <h3 class="fsec">Skills</h3>
+  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Tap once for nice-to-have, twice for must-have, three times to clear. Must-haves filter candidates out. *</span>${chipRow(SKILLS,'skill')}</div>
+  <h3 class="fsec">Who you want</h3>
+  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Candidate stage (leave empty for any)</span>${chipRow(STATUS_NOW,'stages')}</div>
+  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Fields of study (leave empty for any)</span>${chipRow(FIELDS,'fields')}</div>
+  <div class="stack" style="gap:8px"><span class="small muted" style="font-weight:600">Graduation years (leave empty for any)</span>${chipRow(YEARS,'years')}</div>
+  <div class="grid2">
+   <label class="f">Minimum Intern+ score<input id="r-min" data-d="rmin" type="number" min="0" max="100" value="${v('rmin')||60}"></label>
+   <label class="f">Which hiring system (ATS) do you use, if any?<input id="r-ats" data-d="rats" value="${v('rats')}" placeholder="e.g. Workable, Zoho Recruit, none"></label>
+  </div>
   ${state.err?`<p class="err">${esc(state.err)}</p>`:''}
   <div class="row"><button class="btn btn-accent" type="submit">Submit role</button><span class="small faint">Only you and the Intern+ team can see your roles and shortlists.</span></div>
   </form>`;
 }
+function roleFacts(r){return [r.category,r.positionType,roleDurationLabel(r.duration),r.workMode,r.location&&r.location!=='Any'?r.location:'',r.startWhen?'start '+r.startWhen.toLowerCase():''].filter(Boolean).join(' · ');}
+function studentFacts(s){return [statusLabel(s.statusNow),(s.roleInterests||[]).slice(0,3).join(', '),(s.positionTypes||[]).slice(0,2).join(', '),s.duration?durationLabel(s.duration).replace(/ \(.*\)/,''):'',s.availability?'start '+String(s.availability).toLowerCase():''].filter(Boolean).join(' · ');}
+const cvLink=(path,cls)=>path&&state.cvUrls[path]?` · <a href="${esc(state.cvUrls[path])}" target="_blank" rel="noopener" style="color:var(--grad1)">CV (PDF)</a>`:'';
+const urlLink=(u,label)=>u&&/^https?:\/\//.test(u)?` · <a href="${esc(u)}" target="_blank" rel="noopener" style="color:var(--grad1)">${label}</a>`:'';
 function cardRow(c,extra){
-  return `<div class="cand"><div><div class="nm">${esc(c.name)} ${c.sample?'<span class="sample">Sample</span>':''}</div><div class="meta">${esc(c.university)} · ${esc(c.major)} · Class of ${esc(c.gradYear)} · ${esc(c.location)}</div></div>
+  return `<div class="cand"><div><div class="nm">${esc(c.name)} ${c.sample?'<span class="sample">Sample</span>':''}</div><div class="meta">${esc(c.university)} · ${esc(c.major)} · Class of ${esc(c.gradYear)} · ${esc(c.location)}</div>${c.facts?`<div class="meta">${esc(c.facts)}</div>`:''}</div>
    <div class="score">${c.match}%<small>match</small></div>
-   <div class="why">${esc(c.why)}</div>${(c.miss||[]).length?`<div class="gap">Missing: ${esc(c.miss.join(', '))}</div>`:''}${extra||''}</div>`;
+   <div class="why">${esc(c.why)}</div>${(c.miss||[]).length?`<div class="gap">Missing: ${esc(c.miss.join(', '))}</div>`:''}${c.goals?`<div class="why" style="color:var(--card-sub)">"${esc(c.goals)}"</div>`:''}${extra||''}</div>`;
 }
+const uniName=s=>UNI_TEXT.includes(s.university)&&s.universityOther?s.universityOther+(s.university==='University abroad'?' (abroad)':''):s.university;
+const majorName=s=>s.major==='Other'&&s.majorOther?s.majorOther:s.major;
 function candRow(s,x,extra){
-  return cardRow({name:s.name,sample:s.sample,university:s.university,major:s.major,gradYear:s.gradYear,location:s.location,match:x.m,why:x.why,miss:x.miss},extra);
+  return cardRow({name:s.name,sample:s.sample,university:uniName(s),major:majorName(s),gradYear:s.gradYear,location:s.location,facts:studentFacts(s),match:x.m,why:x.why,miss:x.miss,goals:s.goals},extra);
 }
 const STATUSES=['Shortlisted','Interviewing','Hired','Not a fit'];
 const ROLESTATE={review:['review','Intern+ reviewing'],live:['sent','Live · taking applications'],closed:['review','Closed']};
 function roleCard(r){
   const sl=r.shortlist||{};const ids=Object.keys(sl).sort((a,b)=>(sl[b].match||0)-(sl[a].match||0));
   const rows=ids.map(id=>{const c=sl[id];const st=c.status||'Shortlisted';
-    return cardRow(c,`<div class="ctl"><select aria-label="Status for ${esc(c.name)}" data-rid="${r.id}" data-sid="${id}">${STATUSES.map(o=>`<option${o===st?' selected':''}>${o}</option>`).join('')}</select>${c.source==='apply'||c.source==='request'?`<span class="pill" style="background:var(--card-line);color:var(--card-sub)">${c.source==='apply'?'Applied':'You requested'}</span>`:''}<span class="contact">${esc(c.email)}${c.phone?' · '+esc(c.phone):''}${c.cv?` · <a href="${esc(c.cv)}" target="_blank" rel="noopener" style="color:var(--grad1)">CV</a>`:''}</span></div>`);}).join('');
+    return cardRow(c,`<div class="ctl"><select aria-label="Status for ${esc(c.name)}" data-rid="${r.id}" data-sid="${id}">${STATUSES.map(o=>`<option${o===st?' selected':''}>${o}</option>`).join('')}</select>${c.source==='apply'||c.source==='request'?`<span class="pill" style="background:var(--card-line);color:var(--card-sub)">${c.source==='apply'?'Applied':'You requested'}</span>`:''}<span class="contact">${esc(c.email)}${c.phone?' · '+esc(c.phone):''}${urlLink(c.linkedin,'LinkedIn / portfolio')}${cvLink(c.cvPath)}</span></div>`);}).join('');
+  const reqs=Object.keys(r.requests||{}).filter(id=>!sl[id]).length;
   const [cls,label]=ROLESTATE[r.status]||ROLESTATE.review;
-  return `<div class="paper rolecard"><div class="rolehead"><div><h3>${esc(r.title)}</h3><p class="sub">${esc(r.company)} · ${esc(r.location||'Any')} · min score ${esc(r.minScore)}</p></div><span class="status ${cls}">${label}</span></div>
-   ${Object.keys(r.requests||{}).filter(id=>!sl[id]).length?`<p class="sub">Intro requests waiting for Intern+: ${Object.keys(r.requests||{}).filter(id=>!sl[id]).length}</p>`:''}
+  return `<div class="paper rolecard"><div class="rolehead"><div><h3>${esc(r.title)}</h3><p class="sub">${esc(r.company)} · ${esc(roleFacts(r))} · min score ${esc(r.minScore)}</p></div><span class="status ${cls}">${label}</span></div>
+   ${reqs?`<p class="sub">Intro requests waiting for Intern+: ${reqs}</p>`:''}
    <div class="stack" style="gap:10px"><h2>Your shortlist <span class="sub">(${ids.length})</span></h2>${rows||`<p class="sub">${r.status==='review'?'Intern+ is reviewing this role before publishing it to students.':'Intern+ is reviewing applicants and the wider pool. Reviewed candidates appear here.'}</p>`}
-   ${ids.length?`<div class="row"><button class="btn btn-dark" data-csv="${r.id}">Export shortlist (CSV)</button><span class="sub">Columns match common ATS imports.</span></div>`:''}</div></div>`;
+   ${ids.length?`<div class="row"><button class="btn btn-dark" data-csv="${r.id}">Export shortlist (CSV)</button><span class="sub">Columns match common ATS imports. CV links work for 7 days after export.</span></div>`:''}</div></div>`;
 }
 
 /* ---------- ADMIN ---------- */
@@ -704,7 +819,7 @@ function viewAdmin(){
     </tbody></table></div></div>
   </div>`;
 }
-function roleMeta(r){return `<p class="sub">${esc(r.company)} · ${esc(r.location||'Any')} · min score ${esc(r.minScore)}${r.ats?' · ATS: '+esc(r.ats):''}</p><p class="sub">Must: ${esc((r.must||[]).join(', ')||'none')} · Nice: ${esc((r.nice||[]).join(', ')||'none')} · Majors: ${esc((r.majors||[]).join(', ')||'any')} · Years: ${esc((r.years||[]).join(', ')||'any')}</p>`;}
+function roleMeta(r){return `<p class="sub">${esc(r.company)} · ${esc(roleFacts(r))} · min score ${esc(r.minScore)}${r.ats?' · ATS: '+esc(r.ats):''}</p><p class="sub">Must: ${esc((r.must||[]).join(', ')||'none')} · Nice: ${esc((r.nice||[]).join(', ')||'none')} · Fields: ${esc((r.fields||[]).join(', ')||'any')} · Stage: ${esc((r.stages||[]).map(statusLabel).join(', ')||'any')} · Years: ${esc((r.years||[]).join(', ')||'any')}</p>`;}
 function approveCard(r){
   const n=ranked(r).length;
   return `<div class="paper rolecard"><div class="rolehead"><div><h3>${esc(r.title)}</h3>${roleMeta(r)}</div><span class="status review">Needs approval</span></div>
@@ -721,7 +836,7 @@ function reviewCard(r){
   if(!state.pick[r.id])state.pick[r.id]=new Set([...list.filter(o=>o.requested).map(o=>o.s.id),...list.filter(o=>!o.requested&&!blockers(o.s,r).length).slice(0,5).map(o=>o.s.id)]);
   const p=state.pick[r.id];for(const id of [...p])if(!pool.has(id))p.delete(id);
   return `<div class="paper rolecard"><div class="rolehead"><div><h3>${esc(r.title)}</h3>${roleMeta(r)}</div><span class="status ${r.status==='live'?'sent':'review'}">${r.status==='live'?'Live':'Not yet published'} · ${reqs.size} intro request${reqs.size===1?'':'s'} · ${apps.size} applied · ${Object.keys(sl).length} sent</span></div>
-   <div class="stack" style="gap:10px">${list.length?list.map(o=>{const b=blockers(o.s,r);return `<label style="display:block;cursor:pointer">${candRow(o.s,o.x,`<div class="ctl"><input type="checkbox" data-pick="${r.id}" data-sid="${o.s.id}" ${p.has(o.s.id)?'checked':''} style="accent-color:var(--grad1)"> <span class="sub">Include</span>${o.requested?'<span class="pill" style="background:#FBF3C8;color:#7A6300">Intro requested</span>':''}${o.applied?'<span class="pill" style="background:var(--card-line);color:var(--card-sub)">Applied</span>':''}${b.length?`<span class="sub">Note: ${esc(b.join('; '))}</span>`:''}</div>`).replace('class="cand"',`class="cand${p.has(o.s.id)?'':' off'}"`)}</label>`;}).join(''):'<p class="sub">No new candidates to review. Everyone suitable has been sent, or nobody has applied or matched yet.</p>'}</div>
+   <div class="stack" style="gap:10px">${list.length?list.map(o=>{const b=blockers(o.s,r);return `<label style="display:block;cursor:pointer">${candRow(o.s,o.x,`<div class="ctl"><input type="checkbox" data-pick="${r.id}" data-sid="${o.s.id}" ${p.has(o.s.id)?'checked':''} style="accent-color:var(--grad1)"> <span class="sub">Include</span>${o.requested?'<span class="pill" style="background:#FBF3C8;color:#7A6300">Intro requested</span>':''}${o.applied?'<span class="pill" style="background:var(--card-line);color:var(--card-sub)">Applied</span>':''}${b.length?`<span class="sub">Note: ${esc(b.join('; '))}</span>`:''}<span class="contact">${esc(o.s.email)}${urlLink(o.s.linkedin,'LinkedIn')}${cvLink(o.s.cvPath)}</span></div>`).replace('class="cand"',`class="cand${p.has(o.s.id)?'':' off'}"`)}</label>`;}).join(''):'<p class="sub">No new candidates to review. Everyone suitable has been sent, or nobody has applied or matched yet.</p>'}</div>
    <div class="row"><button class="btn btn-dark" data-send="${r.id}" data-eid="${r.eid}" ${p.size?'':'disabled'}>Send ${p.size} to ${esc(r.company)}</button><span class="sub">Only ticked candidates reach the employer, with contact details. Intro requests are ticked by default; untick to decline.</span></div></div>`;
 }
 
@@ -731,6 +846,8 @@ document.addEventListener('change',async e=>{
   const t=e.target;
   if(t.dataset.d)state.draft[t.dataset.d]=t.value;
   if(t.id==='p-consent')state.draft.consent=t.checked;
+  if(t.id==='p-cvfile'){state.cvFile=t.files?.[0]||null;draw();}
+  if(t.id==='p-university'||t.id==='p-major')draw();
   if(t.dataset.tf){state.tf[t.dataset.tf]=t.value;draw();}
   if(t.dataset.trole){state.tRole=t.value;draw();}
   if(t.id==='p-visible'){try{await q(sb.from('students').update({visible:t.checked}).eq('id',state.me).select());toast(t.checked?'Your profile is visible to employers':'Your profile is hidden from employers');await load();}catch(err){fail(err);}}
@@ -741,13 +858,14 @@ document.addEventListener('change',async e=>{
 function chipAct(el){
   if(el.dataset.skill){const k=el.dataset.skill,a=state.skills;a.includes(k)?a.splice(a.indexOf(k),1):a.push(k);draw();return true;}
   if(el.dataset.rskill){const k=el.dataset.rskill,r=state.role;if(r.must.includes(k))r.must=r.must.filter(x=>x!==k);else if(r.nice.includes(k)){r.nice=r.nice.filter(x=>x!==k);r.must.push(k);}else r.nice.push(k);draw();return true;}
+  if(el.dataset.multi){const a=state.multi[el.dataset.multi],v=el.dataset.val;a.includes(v)?a.splice(a.indexOf(v),1):a.push(v);draw();return true;}
   if(el.dataset.rlist){const a=state.role[el.dataset.rlist],v=el.dataset.val;a.includes(v)?a.splice(a.indexOf(v),1):a.push(v);draw();return true;}
   return false;
 }
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('chip')){e.preventDefault();chipAct(e.target);}});
 const stu=()=>sb.from('students');
 document.addEventListener('click',async e=>{
-  const el=e.target.closest('[data-tab],[data-skill],[data-rskill],[data-rlist],[data-ans],[data-act],[data-survey],[data-send],[data-csv],[data-apply],[data-approve],[data-emptab],[data-intro],[data-authmode]');if(!el)return;
+  const el=e.target.closest('[data-tab],[data-skill],[data-rskill],[data-rlist],[data-multi],[data-ans],[data-act],[data-survey],[data-send],[data-csv],[data-apply],[data-approve],[data-emptab],[data-intro],[data-authmode]');if(!el)return;
   if(el.dataset.tab){state.tab=el.dataset.tab;state.err='';state.auth={mode:'signin',msg:'',err:''};try{if(state.tab!=='admin')localStorage.setItem('ip_tab',state.tab);}catch(x){}if(state.tab!=='admin'&&location.hash==='#admin')history.replaceState(null,'',location.pathname+location.search);draw();window.scrollTo(0,0);return;}
   if(el.dataset.authmode){state.auth={mode:el.dataset.authmode,msg:'',err:''};draw();return;}
   if(chipAct(el))return;
@@ -766,7 +884,7 @@ document.addEventListener('click',async e=>{
   if(a==='prevQ'){state.qi=Math.max(0,state.qi-1);draw();}
   if(a==='nextQ'){state.qi=Math.min(QS.length-1,state.qi+1);draw();}
   if(a==='finish'){const s=meDoc();try{await q(stu().update({answers:s.answers,status:'completed'}).eq('id',state.me).select('id'));await load();window.scrollTo(0,0);}catch(err){fail(err);}}
-  if(a==='editProfile'){state.editProfile=true;state.skills=null;state.draft={};state.err='';draw();window.scrollTo(0,0);}
+  if(a==='editProfile'){state.editProfile=true;state.skills=null;state.multi=null;state.cvFile=null;state.draft={};state.err='';draw();window.scrollTo(0,0);}
   if(a==='cancelEdit'){state.editProfile=false;state.draft={};state.err='';draw();}
   if(a==='askClear'){state.confirmClear=true;draw();}
   if(a==='cancelClear'){state.confirmClear=false;draw();}
@@ -778,7 +896,7 @@ document.addEventListener('click',async e=>{
     const r=allRoles().find(x=>x.id===el.dataset.send&&x.eid===el.dataset.eid),p=state.pick[r.id];const apps=new Set(applicantsOf(r.id));const rows=[];
     for(const id of p){const s=state.students.get(id);if(!s)continue;const x=match(s,r,true);const t=scoreOf(s);
       rows.push({role_id:r.id,student_id:id,employer_id:r.eid,match:x.m,source:r.requests?.[id]?'request':apps.has(id)?'apply':'intern',
-        card:{name:s.name,email:s.email,phone:s.phone||'',cv:s.cv||'',university:s.university,major:s.major,gradYear:s.gradYear,location:s.location,score:t,band:band(t),why:x.why,miss:x.miss,sample:!!s.sample}});}
+        card:{name:s.name,email:s.email,phone:s.phone||'',linkedin:s.linkedin||'',cvPath:s.cvPath||'',university:uniName(s),major:majorName(s),gradYear:s.gradYear,location:s.location,facts:studentFacts(s),goals:s.goals||'',uniqueSkill:s.uniqueSkill||'',statusNow:s.statusNow||'',score:t,band:band(t),why:x.why,miss:x.miss,sample:!!s.sample}});}
     try{await q(sb.from('shortlist').insert(rows).select('student_id'));delete state.pick[r.id];toast(rows.length+' sent to '+r.company);await load();}catch(err){fail(err);}
   }
   if(el.dataset.csv)exportCsv(rolesOf(myEmployer()).find(r=>r.id===el.dataset.csv));
@@ -802,16 +920,33 @@ document.addEventListener('submit',async e=>{
   if(f.id==='recoveryForm'){const p=$('#r-pass').value||'';if(p.length<8){state.auth.err='Passwords need at least 8 characters.';draw();return;}
     const {error}=await sb.auth.updateUser({password:p});if(error){state.auth.err=error.message;draw();return;}state.recovery=false;state.auth.err='';toast('Password saved');draw();return;}
   if(f.id==='profileForm'){
-    const s=meDoc();const g=k=>(d[k]??s?.[k]??'');
-    const p={name:String(g('name')).trim(),email:String(g('email')||state.session.user.email).trim(),phone:String(g('phone')).trim(),location:g('location'),university:g('university'),major:g('major'),grad_year:String(d.gradYear??s?.gradYear??''),cv:String(g('cv')).trim(),
+    const s=meDoc();const g=k=>(d[k]??s?.[k]??'');const t=k=>String(g(k)).trim();
+    const uni=g('university'),maj=g('major');
+    const p={name:t('name'),email:String(g('email')||state.session.user.email).trim(),phone:t('phone'),location:g('location'),
+      university:uni,university_other:UNI_TEXT.includes(uni)?t('universityOther'):'',major:maj,major_other:maj==='Other'?t('majorOther'):'',grad_year:String(g('gradYear')),
+      status_now:g('statusNow')||null,role_interests:[...state.multi.roleInterests],position_types:[...state.multi.positionTypes],availability:g('availability')||null,duration:g('duration')||null,
+      goals:t('goals'),unique_skill:t('uniqueSkill'),linkedin:t('linkedin'),
       internships:clamp(+g('internships')||0,0,10),projects:clamp(+g('projects')||0,0,20),activities:clamp(+g('activities')||0,0,20),skills:[...state.skills],consent:!!(d.consent??s?.consent)};
-    if(!p.name||!/^\S+@\S+\.\S+$/.test(p.email)||!p.university||!p.major||!p.grad_year||!p.location){state.err='Add your name, a valid email, city, university, major and graduation year.';draw();return;}
-    if(!p.skills.length){state.err='Pick at least one skill you can already use.';draw();return;}
-    if(!p.consent){state.err='Tick the consent box so we can share your results with pilot employers.';draw();return;}
+    const errs=[];
+    if(!p.name)errs.push('your name');if(!/^\S+@\S+\.\S+$/.test(p.email))errs.push('a valid email');if(!p.location)errs.push('your city');
+    if(!p.status_now)errs.push('where you are now');if(!p.university||(UNI_TEXT.includes(uni)&&!p.university_other))errs.push('your university');
+    if(!p.major||(maj==='Other'&&!p.major_other))errs.push('your major');if(!p.grad_year)errs.push('your graduation year');
+    if(!p.role_interests.length)errs.push('the roles you want');if(!p.position_types.length)errs.push('the position type');
+    if(!p.availability)errs.push('when you can start');if(!p.duration)errs.push('year-round or breaks');
+    if(!p.skills.length)errs.push('at least one skill');if(!state.cvFile&&!s?.cvPath)errs.push('your CV (PDF)');
+    if(!/^https?:\/\/\S+\.\S+/.test(p.linkedin))errs.push('a LinkedIn or portfolio link starting with https://');
+    if(errs.length){state.err='Please add '+errs.join(', ')+'.';draw();return;}
+    if(!p.consent){state.err='Tick the consent box so we can share your profile with employers.';draw();return;}
+    const file=state.cvFile;
+    if(file&&(file.type!=='application/pdf'&&!/\.pdf$/i.test(file.name))){state.err='Your CV must be a PDF file.';draw();return;}
+    if(file&&file.size>5*1024*1024){state.err='Your CV is larger than 5 MB. Please upload a smaller PDF.';draw();return;}
+    state.saving=true;draw();
     try{
+      if(file){const path=`${state.me}/cv.pdf`;const {error}=await sb.storage.from('cvs').upload(path,file,{upsert:true,contentType:'application/pdf'});if(error)throw error;p.cv_path=path;}
       if(s)await q(stu().update(p).eq('id',state.me).select('id'));else await q(stu().insert(p).select('id'));
-      toast('Profile saved');state.editProfile=false;state.draft={};await load();window.scrollTo(0,0);
+      toast('Profile saved');state.editProfile=false;state.draft={};state.cvFile=null;state.skills=null;state.multi=null;await load();window.scrollTo(0,0);
     }catch(err){fail(err);}
+    state.saving=false;draw();
   }
   if(f.id==='codeForm'){
     const c=String(d.code||'').trim().toUpperCase();
@@ -820,18 +955,21 @@ document.addEventListener('submit',async e=>{
   }
   if(f.id==='roleForm'){
     const r=state.role;const role={title:String(d.rtitle||'').trim(),company:String(d.rcompany||myEmployer()?.company||'').trim(),location:d.rlocation||'Any',min_score:clamp(+(d.rmin||60),0,100),
-      must:[...r.must],nice:[...r.nice],majors:[...r.majors],years:[...r.years],ats:String(d.rats||'').trim()};
-    if(!role.title||!role.company){state.err='Add the role title and your company name.';draw();return;}
-    if(!role.must.length&&!role.nice.length){state.err='Pick at least one skill so we can rank candidates.';draw();return;}
-    try{await q(sb.from('roles').insert(role).select('id'));state.draft={};state.role={must:[],nice:[],majors:[],years:[]};toast('Role submitted for review');await load();}catch(err){fail(err);}
+      category:d.rcategory||'',position_type:d.rtype||'',duration:d.rduration||'',start_when:d.rstart||'',work_mode:d.rmode||'',
+      must:[...r.must],nice:[...r.nice],fields:[...r.fields],stages:[...r.stages],years:[...r.years],ats:String(d.rats||'').trim()};
+    const errs=[];if(!role.title)errs.push('the role title');if(!role.company)errs.push('your company name');if(!role.category)errs.push('the role area');
+    if(!role.position_type)errs.push('the position type');if(!role.duration)errs.push('the timing');if(!role.work_mode)errs.push('the work mode');
+    if(!role.must.length&&!role.nice.length)errs.push('at least one skill');
+    if(errs.length){state.err='Please add '+errs.join(', ')+'.';draw();return;}
+    try{await q(sb.from('roles').insert(role).select('id'));state.draft={};state.role={must:[],nice:[],fields:[],stages:[],years:[]};toast('Role submitted for review');await load();}catch(err){fail(err);}
   }
 });
 function exportCsv(r){
   if(!r)return;
-  const cols=['Name','Email','Phone','University','Major','Graduation year','City','Match %','Intern+ score','Band','Why matched','Missing skills','Status','Applied','CV link'];
+  const cols=['Name','Email','Phone','LinkedIn / portfolio','CV link (7 days)','University','Major','Graduation year','City','Stage and preferences','Match %','Intern+ score','Band','Why matched','Missing skills','Status','Source'];
   const qq=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   const lines=[cols.map(qq).join(',')];
-  for(const c of Object.values(r.shortlist||{}))lines.push([c.name,c.email,c.phone,c.university,c.major,c.gradYear,c.location,c.match,c.score,c.band,c.why,(c.miss||[]).join('; '),c.status||'Shortlisted',c.source==='apply'?'Yes':'No',c.cv].map(qq).join(','));
+  for(const c of Object.values(r.shortlist||{}))lines.push([c.name,c.email,c.phone,c.linkedin,state.cvUrls[c.cvPath]||'',c.university,c.major,c.gradYear,c.location,c.facts,c.match,c.score,c.band,c.why,(c.miss||[]).join('; '),c.status||'Shortlisted',c.source==='apply'?'Applied':c.source==='request'?'You requested':'Intern+ pick'].map(qq).join(','));
   const url=URL.createObjectURL(new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv'}));
   const a=document.createElement('a');a.href=url;a.download=`intern-plus-shortlist-${r.title.replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
