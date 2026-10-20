@@ -67,4 +67,4 @@ Published by GitHub Actions (`.github/workflows/pages.yml`) to **https://farahag
 
 ## Status
 
-Draft question bank v1 is a placeholder pending the validated bank. No real payments: access codes (`PAID-`, `SPON-`, `TEAM-`) stand in for payment.
+Draft question bank v1 is a placeholder pending the validated bank. The pilot is free: no access codes or payments. Students go straight from profile to assessment.

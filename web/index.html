@@ -380,7 +380,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const $=s=>document.querySelector(s);
 const meDoc=()=>state.me?state.students.get(state.me):null;
 function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600);}
-function fail(e){console.error(e);const m=e?.message||'';toast(/recognised|access code|Answer all/.test(m)?m:'Could not save. Check your connection and try again.');}
+function fail(e){console.error(e);const m=e?.message||'';toast(/Answer all|own folder/.test(m)?m:'Could not save. Check your connection and try again.');}
 
 /* render, but never while the person is typing in a field */
 let pending=false;
@@ -488,7 +488,7 @@ function viewHome(){
   return `
   <section class="hero">
    <div class="glow"></div>
-   <span class="badge">Founding pilot · Cairo · 2026</span>
+   <span class="badge">Free founding pilot · Cairo · 2026</span>
    <h1>From potential<br><span class="hl">to opportunity.</span></h1>
    <p class="lead">Intern+ is an employability platform for Egypt's students and fresh graduates. Students take one assessment and learn exactly where they stand. Employers get a short, ranked list of assessed candidates, with the reason behind every match.</p>
    <div class="row"><button class="btn btn-accent" data-tab="student">Take the assessment</button><button class="btn btn-outline" data-tab="employer">Post a role</button></div>
@@ -522,7 +522,7 @@ function viewHome(){
     <div class="audcard">
      <span class="who">Universities</span>
      <h3>See how ready your graduates really are.</h3>
-     <ul><li>Employability results by faculty and major</li><li>The skill gaps employers are hiring around</li><li>Evidence for accreditation and outcome reporting</li><li>Sponsored access codes for your students</li></ul>
+     <ul><li>Employability results by faculty and major</li><li>The skill gaps employers are hiring around</li><li>Evidence for accreditation and outcome reporting</li><li>Free access for your students during the pilot</li></ul>
      <p class="soon">Pilot universities receive a report each cohort. A live dashboard follows the pilot.</p>
     </div>
    </div>
@@ -539,13 +539,13 @@ function viewHome(){
   </section>
 
   <section class="homesec">
-   <div class="pilotnote"><span>Intern+ is in its founding pilot. Access is by invitation while we work with our first students, employers and universities.</span><button class="btn btn-outline" data-tab="student">I have an access code</button></div>
+   <div class="pilotnote"><span>Intern+ is in its founding pilot. It is free for students and employers while we work with our first partners.</span><button class="btn btn-outline" data-tab="student">Start your free profile</button></div>
   </section>`;
 }
 
 /* ---------- STUDENT ---------- */
 function stepper(n){
-  const L=['Profile','Access code','Assessment','Your report'];
+  const L=['Profile','Assessment','Your report'];
   return `<div class="stepper">${L.map((l,i)=>`<div class="stp ${i<n?'done':i===n?'now':''}"><b>${i<n?'✓':i+1}</b>${l}</div>`).join('')}</div>`;
 }
 function opt(list,val,ph){return `<option value="">${ph}</option>`+list.map(x=>`<option${String(val)===x?' selected':''}>${esc(x)}</option>`).join('');}
@@ -554,9 +554,8 @@ function viewStudent(){
   {const g=gate('student');if(g)return head+g;}
   const s=meDoc();
   if(!s||state.editProfile)return head+stepper(0)+profileForm(s);
-  if(!s.code)return head+stepper(1)+codeForm();
-  if(s.status!=='completed')return head+stepper(2)+assessment(s);
-  return head+stepper(3)+report(s)+openRoles(s);
+  if(s.status!=='completed')return head+stepper(1)+assessment(s);
+  return head+stepper(2)+report(s)+openRoles(s);
 }
 function openRoles(s){
   const mine=state.applications.get(state.me)?.roles||{};
@@ -619,20 +618,11 @@ function profileForm(s){
   <h3 class="fsec">CV and links</h3>
   <div class="grid2">
    <label class="f">Upload your CV *<input id="p-cvfile" type="file" accept="application/pdf,.pdf"><span class="small faint" style="font-weight:500">${cvNote}</span></label>
-   <label class="f">LinkedIn or portfolio *<input id="p-linkedin" data-d="linkedin" value="${v('linkedin')}" placeholder="https://linkedin.com/in/..."></label>
+   <label class="f">LinkedIn or portfolio (optional)<input id="p-linkedin" data-d="linkedin" value="${v('linkedin')}" placeholder="https://linkedin.com/in/..."></label>
   </div>
   <label class="check"><input type="checkbox" id="p-consent" ${(state.draft.consent??s?.consent)?'checked':''}> Yes, Intern+ may store my profile, assessment results and CV, and share them with employers it thinks are a good fit, including in their hiring systems.</label>
   ${state.err?`<p class="err">${esc(state.err)}</p>`:''}
   <div class="row"><button class="btn btn-accent" type="submit" ${state.saving?'disabled':''}>${state.saving?'Saving…':s?'Save profile':'Save and continue'}</button>${s?`<button class="btn btn-ghost" type="button" data-act="cancelEdit">Cancel</button>`:''}</div>
-  </form>`;
-}
-function codeForm(){
-  return `<form class="panel stack" id="codeForm" novalidate style="max-width:560px">
-  <h2 style="font-size:1.15rem">Enter your pilot access code</h2>
-  <p class="muted small">You get a code after paying for the assessment, or from your university or a sponsoring employer.</p>
-  <label class="f">Access code<input id="c-code" data-d="code" value="${esc(state.draft.code||'')}" placeholder="e.g. PAID-1042" autocomplete="off"></label>
-  ${state.err?`<p class="err">${esc(state.err)}</p>`:''}
-  <div class="row"><button class="btn btn-accent" type="submit">Unlock the assessment</button></div>
   </form>`;
 }
 function assessment(s){
@@ -795,7 +785,6 @@ function viewAdmin(){
   const rate=started?Math.round(completed.length/started*100):0;
   const surv=completed.filter(s=>s.survey);const useful=surv.length?Math.round(surv.filter(s=>s.survey==='useful').length/surv.length*100):null;
   const employersUsing=new Set(R.filter(r=>Object.keys(r.shortlist||{}).length).map(r=>r.eid)).size;
-  const cA=S.filter(s=>s.cohort==='A').length,cB=S.filter(s=>s.cohort==='B').length;
   const kpi=(n,ok,l,t)=>`<div class="kpi"><div class="num${ok?' ok':''}">${n}</div><div class="lbl">${l}</div><div class="tgt">${t}</div></div>`;
   const toApprove=R.filter(r=>r.status==='review').sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
   const live=R.filter(r=>r.status==='live'||Object.keys(r.requests||{}).some(id=>!(r.shortlist||{})[id])).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
@@ -806,7 +795,7 @@ function viewAdmin(){
     ${kpi(employersUsing,employersUsing>=2,'Employers with a shortlist','target 2')}
     ${kpi(interviewing,interviewing>=5,'Interviews from shortlists','target 5 or more')}
    </div>
-   <div class="panel stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:1.05rem">Pilot funnel</h2><span class="small muted mono">Cohort A (paid) ${cA} · Cohort B (sponsored) ${cB} · Report useful ${useful==null?'n/a':useful+'%'}</span></div>
+   <div class="panel stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:1.05rem">Pilot funnel</h2><span class="small muted mono">Free pilot · ${S.length} student${S.length===1?'':'s'} · Report useful ${useful==null?'n/a':useful+'%'}</span></div>
     <div class="funnel">${stages.map(([l,n],i)=>`<div class="fstage"><div>${l}</div><div class="ftrack"><div class="ffill" style="width:${n/max*100}%"></div></div><div class="fnum">${n}${i?` <small>${stages[i-1][1]?Math.round(n/stages[i-1][1]*100):0}%</small>`:''}</div></div>`).join('')}</div></div>
    <div class="stack"><h2 style="font-size:1.05rem">Roles to approve <span class="faint small">(${toApprove.length})</span></h2>
     ${toApprove.length?toApprove.map(approveCard).join(''):`<div class="notice">No roles waiting. New role briefs from employers land here before they go live to students.</div>`}</div>
@@ -814,8 +803,8 @@ function viewAdmin(){
     ${live.length?live.map(reviewCard).join(''):`<div class="notice">Approved roles appear here with their applicants and the best-matched candidates from the pool.</div>`}</div>
    <div class="stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:1.05rem">Students <span class="faint small">(${S.length})</span></h2>
     ${S.some(s=>s.sample)?(state.confirmClear?`<div class="row"><span class="small muted">Delete all sample students?</span><button class="btn btn-outline" data-act="clearSamples">Yes, delete</button><button class="btn btn-ghost" data-act="cancelClear">Keep them</button></div>`:`<button class="btn btn-outline" data-act="askClear">Remove sample students</button>`):''}</div>
-    <div class="tablewrap"><table><thead><tr><th>Name</th><th>University · major</th><th>Cohort</th><th>Status</th><th>Score</th><th>Band</th><th>Override</th><th>Report useful?</th></tr></thead><tbody>
-    ${S.sort((a,b)=>scoreOf(b)-scoreOf(a)).map(s=>{const t=s.status==='completed'?scoreOf(s):null;return `<tr><td>${esc(s.name)} ${s.sample?'<span class="sample">Sample</span>':''}</td><td>${esc(s.university)} · ${esc(s.major)}</td><td>${esc(s.cohort||'none')}</td><td><span class="pill${s.status==='completed'?' done':''}">${esc(s.status==='completed'?'Completed':s.code?'In assessment':'Profile only')}</span></td><td class="num">${t??'n/a'}</td><td>${t==null?'':esc(band(t))}</td><td><input class="ovr" type="number" min="0" max="100" aria-label="Score override for ${esc(s.name)}" data-ovr="${s.id}" value="${s.override??''}" placeholder="auto"></td><td>${esc(s.survey||'')}</td></tr>`;}).join('')||'<tr><td colspan="8" class="muted">No students yet.</td></tr>'}
+    <div class="tablewrap"><table><thead><tr><th>Name</th><th>University · major</th><th>Stage</th><th>Status</th><th>Score</th><th>Band</th><th>Override</th><th>Report useful?</th></tr></thead><tbody>
+    ${S.sort((a,b)=>scoreOf(b)-scoreOf(a)).map(s=>{const t=s.status==='completed'?scoreOf(s):null;return `<tr><td>${esc(s.name)} ${s.sample?'<span class="sample">Sample</span>':''}</td><td>${esc(s.university)} · ${esc(s.major)}</td><td>${esc(statusLabel(s.statusNow)||'n/a')}</td><td><span class="pill${s.status==='completed'?' done':''}">${esc(s.status==='completed'?'Completed':s.status==='started'?'In assessment':'Profile only')}</span></td><td class="num">${t??'n/a'}</td><td>${t==null?'':esc(band(t))}</td><td><input class="ovr" type="number" min="0" max="100" aria-label="Score override for ${esc(s.name)}" data-ovr="${s.id}" value="${s.override??''}" placeholder="auto"></td><td>${esc(s.survey||'')}</td></tr>`;}).join('')||'<tr><td colspan="8" class="muted">No students yet.</td></tr>'}
     </tbody></table></div></div>
   </div>`;
 }
@@ -934,7 +923,7 @@ document.addEventListener('submit',async e=>{
     if(!p.role_interests.length)errs.push('the roles you want');if(!p.position_types.length)errs.push('the position type');
     if(!p.availability)errs.push('when you can start');if(!p.duration)errs.push('year-round or breaks');
     if(!p.skills.length)errs.push('at least one skill');if(!state.cvFile&&!s?.cvPath)errs.push('your CV (PDF)');
-    if(!/^https?:\/\/\S+\.\S+/.test(p.linkedin))errs.push('a LinkedIn or portfolio link starting with https://');
+    if(p.linkedin&&!/^https?:\/\/\S+\.\S+/.test(p.linkedin))errs.push('a LinkedIn or portfolio link starting with https:// (or leave it empty)');
     if(errs.length){state.err='Please add '+errs.join(', ')+'.';draw();return;}
     if(!p.consent){state.err='Tick the consent box so we can share your profile with employers.';draw();return;}
     const file=state.cvFile;
@@ -947,11 +936,6 @@ document.addEventListener('submit',async e=>{
       toast('Profile saved');state.editProfile=false;state.draft={};state.cvFile=null;state.skills=null;state.multi=null;await load();window.scrollTo(0,0);
     }catch(err){fail(err);}
     state.saving=false;draw();
-  }
-  if(f.id==='codeForm'){
-    const c=String(d.code||'').trim().toUpperCase();
-    if(!/^(PAID|SPON|TEAM)-[A-Z0-9]{2,}$/.test(c)){state.err='That code is not recognised. Codes look like PAID-1042 or SPON-AUC1. Check it and try again.';draw();return;}
-    try{await q(stu().update({code:c}).eq('id',state.me).select('id'));state.draft={};state.qi=null;await load();}catch(err){fail(err);}
   }
   if(f.id==='roleForm'){
     const r=state.role;const role={title:String(d.rtitle||'').trim(),company:String(d.rcompany||myEmployer()?.company||'').trim(),location:d.rlocation||'Any',min_score:clamp(+(d.rmin||60),0,100),
