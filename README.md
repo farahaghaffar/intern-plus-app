@@ -24,7 +24,7 @@ Match % = 40% skills overlap + 30% Intern+ score + 15% major fit + 10% graduatio
 
 | Folder | What it is |
 | --- | --- |
-| `web/` | **The real app.** Runs on Supabase with email sign-up. This is what Netlify publishes. |
+| `web/` | **The real app.** Runs on Supabase with email sign-up. Published to GitHub Pages. |
 | `supabase/setup.sql`, `supabase/02_hardening.sql` | Database setup (run in order): tables, privacy rules (row-level security), server-side scoring, sample students. Run once in Supabase's SQL Editor. |
 | `claude-pilot/` | The earlier prototype that runs inside claude.ai (uses its built-in database). Kept for reference. |
 | `seed/` | The 8 fictional sample students as JSON. |
@@ -57,9 +57,11 @@ Scores are calculated in the database, so students cannot change their own score
 
 `seed/` holds the 8 fictional sample students (marked `sample: true`) and their anonymous talent records.
 
-## Next step
+## Live app
 
-Host `web/` on Netlify (connected to this repository; `netlify.toml` already points at `web/`), then set the Netlify address as the Site URL in Supabase > Authentication > URL Configuration so confirmation and password-reset emails link back to the app.
+Published by GitHub Actions (`.github/workflows/pages.yml`) to **https://farahaghaffar.github.io/intern-plus-app/** on every push to `main`. Admin: add `#admin` to the address.
+
+`*.netlify.app` addresses are unreachable from Egyptian networks (connection-not-private error), so Netlify is not used for now. Before launch, point a custom domain at the app. The Supabase Site URL and Redirect URLs (Authentication > URL Configuration) must match the live address.
 
 ## Status
 
