@@ -68,3 +68,13 @@ Published by GitHub Actions (`.github/workflows/pages.yml`) to **https://farahag
 ## Status
 
 Draft question bank v1 is a placeholder pending the validated bank. The pilot is free: no access codes or payments. Students go straight from profile to assessment.
+
+## Assessment v2
+
+- 24 timed questions (6 per area, options graded 0 to 3, three calculation questions) plus a short writing task. Question order and answer order are shuffled per student. No going back.
+- The database scores everything (`score_student_v2` in `supabase/05_assessment_v2.sql`); students cannot set their own score.
+- The writing task is scored by Claude against a fixed rubric through the `score-writing` edge function (`supabase/functions/score-writing`). It needs an `ANTHROPIC_API_KEY` secret in Supabase. Admins can always type a score by hand.
+- Experience is capped at 50 until an admin ticks "Exp. verified" after checking the CV.
+- Percentile ranking appears once 50 real students have completed.
+- Students scoring under 80 in an area can join a free waitlist for future coaching (`waitlist_areas`). No payment is taken.
+- The question bank lives in `assessment/bank_v2.json`; `assessment/build_sql.py` regenerates the SQL.

@@ -79,6 +79,8 @@ nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;padding-block:14
 label.f{display:flex;flex-direction:column;gap:6px;font-size:0.82rem;font-weight:600;color:var(--ink-soft);min-width:0}
 .f input,.f select,.f textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--ink);font-weight:500}
 .f textarea{min-height:70px;resize:vertical}
+.paper .f{color:var(--card-sub)}
+.paper .f input,.paper .f textarea{background:#fff;color:var(--card-ink);border-color:var(--card-line)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{padding:7px 13px;border-radius:999px;background:var(--surface-2);color:var(--ink-soft);font-size:0.82rem;font-weight:600;cursor:pointer;border:1px solid var(--line);user-select:none}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -292,40 +294,37 @@ const CATS=[
  {k:'prof',name:'Professional readiness',w:0.20},
  {k:'digi',name:'Digital skills',w:0.15},
  {k:'exp',name:'Experience & activities',w:0.25}];
-// Draft question bank v1 (to be replaced by Sara's validated bank). pts: 2 best, 1 partial, 0 weak.
-const QS=[
- {id:'c1',cat:'comm',q:'Your manager asks for a quick project update by email. Which opening works best?',o:[['"Hi, so basically a lot happened this week and I will explain everything."',0],['"Status: on track. The report is 80% done and ready Thursday. One risk: we still need the sales data."',2],['"Please see attached."',0],['"Sorry for the delay, full details below."',1]]},
- {id:'c2',cat:'comm',q:'In a meeting, a senior colleague quotes a number from your analysis incorrectly. What do you do?',o:[['Correct them firmly in front of everyone',1],['Say nothing, it is not your place',0],['Politely add: "Just to confirm, the latest figure is 12%. I can share the source."',2],['Email the whole team afterwards pointing out the mistake',0]]},
- {id:'c3',cat:'comm',q:'A client asks a question you cannot answer yet. What is the best reply?',o:[['Wait until you have the full answer before replying',0],['"Thanks for your message. I am checking with the team and will reply by 3 pm today."',2],['"I don\'t know."',0],['Forward it to your manager without replying to the client',1]]},
- {id:'p1',cat:'prob',q:'A shop\'s sales fell 20% this month. What do you check first?',o:[['Launch a discount straight away',0],['Whether the drop is across all products and channels, or in one',2],['Assume it is seasonal and wait',0],['Ask followers on social media why they stopped buying',1]]},
- {id:'p2',cat:'prob',q:'A course costs EGP 1,200. With a 25% student discount, what do you pay?',o:[['EGP 900',2],['EGP 950',0],['EGP 300',0],['EGP 1,175',0]]},
- {id:'p3',cat:'prob',q:'You have three tasks due today and time for two. What do you do?',o:[['Do the two easiest ones',0],['Ask your manager which matters most and flag that the third will slip',2],['Stay late and try to finish all three without telling anyone',1],['Start all three at the same time',0]]},
- {id:'r1',cat:'prof',q:'Traffic means you will be 20 minutes late for an interview. What do you do?',o:[['Arrive and explain when you get there',0],['Message or call before the start time with a new arrival time',2],['Skip the interview',0],['Send a message once the interview has started',1]]},
- {id:'r2',cat:'prof',q:'You spot a mistake in a report already sent to a client. What do you do?',o:[['Hope nobody notices',0],['Tell your manager right away and bring a corrected version',2],['Quietly fix it in next month\'s report',0],['Blame the data source',0]]},
- {id:'r3',cat:'prof',q:'Your feedback says your work is good but slow. What is your next step?',o:[['Ask which tasks took too long and what "fast enough" looks like',2],['Work extra hours without saying anything',1],['Explain that you prefer quality over speed',0],['Ignore it',0]]},
- {id:'d1',cat:'digi',q:'In Excel, which formula adds up the values in cells A1 to A10?',o:[['=SUM(A1:A10)',2],['=ADD(A1:A10)',0],['=TOTAL(A1:A10)',0],['=COUNT(A1:A10)',0]]},
- {id:'d2',cat:'digi',q:'What is the best way for a team to edit one version of a large file?',o:[['Email the file to each person',0],['A shared cloud document with edit access',2],['Pass it around on a USB stick',0],['Send it in a WhatsApp group',0]]},
- {id:'d3',cat:'digi',q:'Which password is strongest?',o:[['Ahmed1999',0],['password123',0],['A long phrase of unrelated words plus a number',2],['Your phone number',0]]}
-];
+// Assessment v2: 24 timed questions (options graded 0 to 3, numeric answers within a tolerance) plus a writing task.
+// The database scores answers itself (score_student_v2); this copy only drives the screens and admin stats.
+const QS=[{"id": "cm1", "cat": "comm", "q": "It is 9 pm. Your manager messages on WhatsApp asking for the sales report by 10 am tomorrow. You know it will realistically take until noon. What do you do?", "o": [["Reply now: \"I can send the key numbers by 10 and the full report by 12. Does that work, or is there one section you need first?\"", 3], ["Stay up late and finish it by 10 without mentioning the time it took", 2], ["Reply first thing in the morning to say it will be ready by noon", 1], ["Reply \"Sure, no problem\" and send it at noon", 0]]}, {"id": "cm2", "cat": "comm", "q": "A client emails angrily because their order is three days late. The delay was the courier's fault. Which reply is best?", "o": [["Apologise, give the new delivery date and what you have done to fix it, and offer a goodwill gesture if your policy allows", 3], ["Apologise sincerely and promise it will not happen again", 2], ["Explain politely that the courier caused the delay and it was outside your control", 1], ["Forward it to your manager because the client is upset", 0]]}, {"id": "cm3", "cat": "comm", "q": "You are presenting to senior managers. One interrupts with a question you planned to answer on slide 8 of 10. What do you do?", "o": [["Answer it in one or two sentences now, then say you will show the detail on slide 8", 3], ["Say \"Great question, I'll come to that shortly\" and continue", 2], ["Skip ahead to slide 8 straight away", 1], ["Ask everyone to hold questions until the end", 0]]}, {"id": "cm4", "cat": "comm", "q": "You are messaging a hiring manager you have never met on LinkedIn. Which opening is strongest?", "o": [["\"Hi Ahmed, I saw your team is hiring growth interns. I grew our student club's Instagram from 2k to 9k followers in six months. Could I have 10 minutes of your time?\"", 3], ["\"Hi Ahmed, I'm a marketing student at Cairo University and I'm very interested in your growth team.\"", 2], ["\"Hi Ahmed, could you refer me to the growth internship?\"", 1], ["\"Hello sir, I am a hardworking and passionate student looking for any opportunity.\"", 0]]}, {"id": "cm5", "cat": "comm", "q": "A teammate on a shared project has missed two deadlines, and it is now delaying your part. What is your first move?", "o": [["Talk to them privately, ask what is blocking them, and agree a smaller next deadline together", 3], ["Tell your manager, with dates and the impact on your work", 2], ["Quietly do their part yourself so the project stays on track", 1], ["Mention it in the team group chat so everyone is aware", 0]]}, {"id": "cm6", "cat": "comm", "q": "An email says: \"We will move the launch to the 14th only if the supplier confirms the new packaging by Thursday. Otherwise we keep the 10th and launch with the current packaging.\" The supplier does not confirm by Thursday. What happens?", "o": [["The launch stays on the 10th with the current packaging", 3], ["The launch moves to the 14th with the current packaging", 0], ["The launch stays on the 10th with the new packaging", 0], ["The launch is postponed until the supplier confirms", 0]]}, {"id": "pb1", "cat": "prob", "q": "Last week an online store had 2,400 visitors and 60 orders. This week visitors went up by 25% and the conversion rate (orders divided by visitors) stayed the same. How many orders did the store get this week?", "num": true, "answer": 75, "tol": 0}, {"id": "pb2", "cat": "prob", "q": "A product costs EGP 400 to make and sells for EGP 650. Delivery costs EGP 50 per order. What is the profit as a percentage of the selling price? Round to the nearest whole number.", "num": true, "answer": 31, "tol": 1}, {"id": "pb3", "cat": "prob", "q": "Monthly sales fell by 30%. The data shows website visitors and the number of orders stayed about the same. What is the most likely explanation?", "o": [["Customers are spending less per order, for example because of discounts or cheaper products", 3], ["Demand dropped because of the season", 1], ["Fewer people visited the website", 0], ["The checkout page stopped working", 0]]}, {"id": "pb4", "cat": "prob", "q": "Your to-do list: (A) fix an error for a major client, due 3 pm today; (B) the weekly report your manager reads on Monday; (C) a colleague asked for 30 minutes of help today; (D) tidy your inbox. Which order is best?", "o": [["A, C, B, D", 3], ["A, B, C, D", 2], ["C, A, B, D", 1], ["B, A, C, D", 0]]}, {"id": "pb5", "cat": "prob", "q": "All interns at Company X speak English. Mona speaks English. Which statement must be true?", "o": [["Mona may or may not be an intern at Company X", 3], ["Mona is an intern at Company X", 0], ["Mona is not an intern at Company X", 0], ["Everyone who speaks English works at Company X", 0]]}, {"id": "pb6", "cat": "prob", "q": "Your manager says \"make the pitch deck better\" before tomorrow's investor meeting. What do you do first?", "o": [["Ask who will be in the room and what decision the meeting needs to reach", 3], ["Ask a colleague which slides feel weakest, then fix those", 2], ["Redesign the slides so they look more modern", 1], ["Add as much supporting data as possible to every slide", 0]]}, {"id": "pr1", "cat": "prof", "q": "In your first week, you notice a team process that seems slow and inefficient. What do you do?", "o": [["Learn why it is done that way, then suggest an improvement with a small example", 3], ["Suggest a better way in the next team meeting", 2], ["Wait a few months until you understand the company before saying anything", 1], ["Start doing it your own way without telling anyone", 0]]}, {"id": "pr2", "cat": "prof", "q": "You realise a number you gave your manager yesterday was wrong, and it has already gone to a client. What do you do?", "o": [["Tell your manager right away with the correct number and a draft correction for the client", 3], ["Recheck all your other numbers first, then tell your manager tomorrow", 2], ["Correct it in next month's report", 1], ["Leave it, since the difference is small", 0]]}, {"id": "pr3", "cat": "prof", "q": "Your manager says your work is good but you take too long. What is your best response?", "o": [["Ask which tasks took too long and what time is reasonable, then check in again after two weeks", 3], ["Work extra hours so you finish faster", 2], ["Explain that you take time because you care about quality", 1], ["Carry on as before, since the quality is good", 0]]}, {"id": "pr4", "cat": "prof", "q": "You are working remotely and finish your tasks early on Thursday afternoon. What do you do?", "o": [["Tell your manager you are done and suggest one or two useful things you could pick up", 3], ["Start a project you think would help, and tell your manager about it on Sunday", 2], ["Wait until someone gives you a new task", 1], ["Log off early, since the work is done", 0]]}, {"id": "pr5", "cat": "prof", "q": "A friend who works at a competitor asks when your company is launching its new product. What do you do?", "o": [["Say politely that you cannot share internal plans", 3], ["Check with your manager whether it is OK to share", 2], ["Give a vague hint without a date", 1], ["Tell them, since it will be public soon anyway", 0]]}, {"id": "pr6", "cat": "prof", "q": "In an interview you are asked: \"What is your biggest weakness?\" Which answer is strongest?", "o": [["A real, specific weakness, plus what you are doing about it and an example of progress", 3], ["A real, specific weakness, explained honestly", 2], ["\"I'm a perfectionist, so I sometimes work too hard.\"", 1], ["\"I don't really have any major weaknesses.\"", 0]]}, {"id": "dg1", "cat": "digi", "q": "Order values are in cells B2 to B500. Which formula counts the orders above EGP 1,000?", "o": [["=COUNTIF(B2:B500,\">1000\")", 3], ["=IF(B2:B500>1000,1,0)", 1], ["=SUMIF(B2:B500,\">1000\")", 0], ["=COUNT(B2:B500>1000)", 0]]}, {"id": "dg2", "cat": "digi", "q": "You want an AI tool like ChatGPT or Claude to draft a cold email. Which prompt will give the best result?", "o": [["\"Write a 100-word cold email to the HR manager of a Cairo fintech, introducing me as a final-year business student who built a budgeting tool, asking for a 15-minute call. Friendly but professional.\"", 3], ["\"Write a professional cold email to an HR manager asking for an internship.\"", 2], ["\"Write a cold email.\"", 1], ["\"Make my email good.\"", 0]]}, {"id": "dg3", "cat": "digi", "q": "An AI tool gives you a market size figure for Egypt with no source. You need it for a client slide. What do you do?", "o": [["Find the figure in a credible source, such as an official report, and cite that source", 3], ["Use it, clearly labelled as an AI estimate", 2], ["Ask the AI for its source and use the figure if it names one", 1], ["Use it as it is, since AI tools are usually right", 0]]}, {"id": "dg4", "cat": "digi", "q": "Revenue was EGP 120,000 in January, EGP 90,000 in February and EGP 135,000 in March. By what percentage did revenue grow from February to March?", "num": true, "answer": 50, "tol": 0}, {"id": "dg5", "cat": "digi", "q": "A client asks for a spreadsheet that includes your customers' names and phone numbers. They only need sales totals by city. What do you do?", "o": [["Share a version with only the totals by city, with access limited to the client", 3], ["Share the full file as view-only with the client's email address", 2], ["Share the full file using \"anyone with the link\" so it is easy to open", 1], ["Email the full file as an attachment", 0]]}, {"id": "dg6", "cat": "digi", "q": "Prices are in cells C2 to C101, and a few cells are empty. Which formula gives the correct average price?", "o": [["=AVERAGE(C2:C101)", 3], ["=SUM(C2:C101)/100", 1], ["=MEAN(C2:C101)", 0], ["=AVG(C2:C101)", 0]]}];
+const WRITING={"prompt": "A customer sends this message: \"I ordered a dress 9 days ago, paid online, and still nothing. This is the third time I'm asking. I want a refund now.\" You have checked: the courier lost the parcel. You can offer either a replacement delivered within 2 days, or a full refund within 5 to 7 working days. Write your reply to the customer in 60 to 150 words, in English or Arabic.", "rubric": [["Acknowledges the frustration and apologises sincerely", 20], ["Takes ownership without blaming the customer or making excuses", 15], ["Explains clearly what happened and offers both options", 25], ["Gives concrete next steps and timelines", 20], ["Professional, warm tone; clear, concise and correct language", 20]]};
+const TIMES={mcq:75,num:120,writing:480};
 // Free, self-guided tips. No paid Intern+ services are offered during the pilot.
 const TIPS={
  comm:['Sharpen how you write and speak at work','Lead with the point: status first, then progress, then any risk. Keep updates to three lines and reply with a time when you need to check something.'],
  prob:['Practise breaking problems down','Before suggesting a fix, ask what changed and where. Try free business cases online and talk through your steps out loud.'],
  prof:['Build strong workplace habits','Warn people early if you will be late, own mistakes the same day, and ask what "good" looks like when you get feedback.'],
  digi:['Level up your digital tools','Free courses on Excel, Google Sheets and AI tools take a few hours. Add any skills you learn to your profile so employers can find you.'],
- exp:['Add real experience to your profile','A class project, volunteer role, competition or freelance gig all count. Experience is 25% of your score, so one real project moves it.']
+ exp:['Add real experience to your profile','A class project, volunteer role, competition or freelance gig all count. Experience is 25% of your score. Upload your CV so the Intern+ team can verify it and lift the cap of 50.']
 };
 
 /* ---------- SCORING + MATCHING ---------- */
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+function itemPts(q,v){
+  if(v==null||v==='')return 0;
+  if(q.num){const n=parseFloat(String(v).replace(/[^0-9.\-]/g,''));return isFinite(n)&&Math.abs(n-q.answer)<=q.tol?3:0;}
+  return /^[0-3]$/.test(String(v))?q.o[+v][1]:0;
+}
 function catScores(s){
+  if(s.status==='completed'&&s.scores)return s.scores;
   const out={};
   for(const c of CATS){
-    if(c.k==='exp'){out.exp=clamp(Math.min(3,+s.internships||0)*35+(+s.projects||0)*15+(+s.activities||0)*10,0,100);continue;}
-    const qs=QS.filter(q=>q.cat===c.k);let p=0,a=0;
-    for(const q of qs){const i=s.answers?.[q.id];if(i!=null){p+=q.o[i][1];a++;}}
-    out[c.k]=a?Math.round(p/(2*qs.length)*100):0;
+    if(c.k==='exp'){let e=clamp(Math.min(3,+s.internships||0)*35+(+s.projects||0)*15+(+s.activities||0)*10,0,100);if(!s.expVerified)e=Math.min(e,50);out.exp=e;continue;}
+    const qs=QS.filter(q=>q.cat===c.k);let p=0;
+    for(const q of qs)p+=itemPts(q,s.answers?.[q.id]);
+    out[c.k]=Math.round(p/(3*qs.length)*100);
   }
+  if(s.writingScore!=null)out.comm=Math.round((out.comm+s.writingScore)/2);
   return out;
 }
 const totalOf=sc=>Math.round(CATS.reduce((t,c)=>t+c.w*(sc[c.k]||0),0));
@@ -373,7 +372,7 @@ const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
 /* ---------- STATE ---------- */
 const state={session:null,me:null,userRole:null,canEdit:false,ready:false,auth:{mode:'signin',msg:'',err:''},recovery:false,
   students:new Map(),employers:new Map(),applications:new Map(),openings:new Map(),talent:new Map(),cvUrls:{},multi:null,cvFile:null,saving:false,tf:{},tRole:null,empTab:'talent',
-  tab:'home',draft:{},role:{must:[],nice:[],fields:[],stages:[],years:[]},skills:[],err:'',qi:null,pick:{},confirmClear:false};
+  tab:'home',draft:{},role:{must:[],nice:[],fields:[],stages:[],years:[]},skills:[],err:'',pick:{},confirmClear:false,aStarted:false,wDraft:null,qStart:{},busy:false,pct:null,confirmReset:null};
 try{const t=localStorage.getItem('ip_tab');if(t&&t!=='admin')state.tab=t;}catch(e){}
 if(location.hash==='#admin')state.tab='admin';
 window.addEventListener('hashchange',()=>{if(location.hash==='#admin'){state.tab='admin';draw();}});
@@ -436,7 +435,8 @@ function recoveryForm(){
 const mapStudent=r=>({id:r.id,name:r.name,email:r.email,phone:r.phone,location:r.location,university:r.university,universityOther:r.university_other||'',major:r.major,majorOther:r.major_other||'',gradYear:r.grad_year,
   statusNow:r.status_now,roleInterests:r.role_interests||[],positionTypes:r.position_types||[],availability:r.availability,duration:r.duration,goals:r.goals||'',linkedin:r.linkedin||'',uniqueSkill:r.unique_skill||'',cvPath:r.cv_path,
   internships:r.internships,projects:r.projects,activities:r.activities,skills:r.skills||[],consent:r.consent,visible:r.visible,code:r.code,cohort:r.cohort,
-  status:r.status,answers:r.answers||{},scores:r.scores,total:r.total,override:r.override,survey:r.survey,sample:r.sample});
+  status:r.status,answers:r.answers||{},scores:r.scores,total:r.total,override:r.override,survey:r.survey,sample:r.sample,
+  taskWriting:r.task_writing||'',writingScore:r.writing_score,writingFeedback:r.writing_feedback||'',writingScoredBy:r.writing_scored_by||'',expVerified:!!r.exp_verified,waitlistAreas:r.waitlist_areas||[],waitlistAt:r.waitlist_at});
 const mapRole=r=>({id:r.id,eid:r.employer_id,title:r.title,company:r.company,location:r.location,minScore:r.min_score,must:r.must||[],nice:r.nice||[],
   fields:r.fields||[],stages:r.stages||[],category:r.category||'',positionType:r.position_type||'',duration:r.duration||'',startWhen:r.start_when||'',workMode:r.work_mode||'',
   years:r.years||[],ats:r.ats,status:r.status,createdAt:Date.parse(r.created_at),requests:{},shortlist:{}});
@@ -453,7 +453,7 @@ async function load(){
       wantEmployer?q(sb.from('intro_requests').select('*')):[],
       wantEmployer?q(sb.from('shortlist').select('*')):[],
       wantStudent?q(sb.rpc('get_openings')):[],
-      wantEmployer?q(sb.rpc('get_talent')):[]]);
+      wantEmployer?q(sb.rpc('get_talent_v2')):[]]);
     state.students=new Map(students.map(r=>[r.id,mapStudent(r)]));
     const emp=new Map();
     for(const r of roles.map(mapRole).sort((a,b)=>a.createdAt-b.createdAt)){
@@ -468,7 +468,9 @@ async function load(){
     state.applications=am;
     state.openings=new Map(openings.map(r=>[r.id,{...mapRole({...r,employer_id:null,status:'live',created_at:r.published_at})}]));
     state.talent=new Map(talent.map(r=>[r.id,{id:r.id,university:r.university,major:r.major,gradYear:r.grad_year,location:r.location,skills:r.skills||[],total:r.total,scores:r.scores,sample:r.sample,
-      statusNow:r.status_now,roleInterests:r.role_interests||[],positionTypes:r.position_types||[],duration:r.duration,availability:r.availability}]));
+      statusNow:r.status_now,roleInterests:r.role_interests||[],positionTypes:r.position_types||[],duration:r.duration,availability:r.availability,pct:r.pct,expVerified:!!r.exp_verified}]));
+    const mine=state.students.get(state.me);
+    if(role==='student'&&mine?.status==='completed'){try{const p=await q(sb.rpc('get_my_percentile'));state.pct=p[0]||null;}catch(e){state.pct=null;}}
     const paths=[...new Set([...students.map(x=>x.cv_path),...sl.map(x=>x.card?.cvPath)].filter(Boolean))].filter(x=>!state.cvUrls[x]);
     if(paths.length&&(isAdmin||role==='employer')){const {data}=await sb.storage.from('cvs').createSignedUrls(paths,7*24*3600);for(const u of data||[])if(u.signedUrl)state.cvUrls[u.path]=u.signedUrl;}
   }catch(e){console.error(e);toast('Could not load data. Refresh the page to try again.');}
@@ -498,7 +500,7 @@ function viewHome(){
   <section class="homesec">
    <div class="secthead"><span class="eyebrow">How the pilot works</span><h2>One loop, from assessment to interview</h2></div>
    <div class="loop">
-    <div class="loopstep"><span class="n">1</span><h3>Assess</h3><p>A student builds a profile and answers 12 workplace questions in about 15 minutes.</p></div>
+    <div class="loopstep"><span class="n">1</span><h3>Assess</h3><p>A student builds a profile and answers 24 timed workplace questions and one short writing task in about 25 minutes.</p></div>
     <div class="loopstep"><span class="n">2</span><h3>Score</h3><p>They get a score out of 100, a readiness band, and a breakdown of their strengths and gaps.</p></div>
     <div class="loopstep"><span class="n">3</span><h3>Match</h3><p>Students apply to open roles. Employers browse anonymous profiles and request intros. Our team confirms who is shared.</p></div>
     <div class="loopstep"><span class="n">4</span><h3>Interview</h3><p>The employer gets the shortlist with contact details and tracks who they interview and hire.</p></div>
@@ -551,7 +553,7 @@ function stepper(n){
 }
 function opt(list,val,ph){return `<option value="">${ph}</option>`+list.map(x=>`<option${String(val)===x?' selected':''}>${esc(x)}</option>`).join('');}
 function viewStudent(){
-  const head=`<div class="pagehead"><span class="eyebrow">For students &amp; fresh graduates</span><h1>Find out where you stand.<br><span class="hl">Then get matched.</span></h1><p class="lead">Build your profile, take the 12-question employability assessment, and get your score with a breakdown of your strengths and gaps. Pilot employers see ranked, explained shortlists built from these results.</p></div>`;
+  const head=`<div class="pagehead"><span class="eyebrow">For students &amp; fresh graduates</span><h1>Find out where you stand.<br><span class="hl">Then get matched.</span></h1><p class="lead">Build your profile, take the timed 24-question employability assessment with a short writing task, and get your score with a breakdown of your strengths and gaps. Pilot employers see ranked, explained shortlists built from these results.</p></div>`;
   {const g=gate('student');if(g)return head+g;}
   const s=meDoc();
   if(!s||state.editProfile)return head+stepper(0)+profileForm(s);
@@ -626,20 +628,89 @@ function profileForm(s){
   <div class="row"><button class="btn btn-accent" type="submit" ${state.saving?'disabled':''}>${state.saving?'Saving…':s?'Save profile':'Save and continue'}</button>${s?`<button class="btn btn-ghost" type="button" data-act="cancelEdit">Cancel</button>`:''}</div>
   </form>`;
 }
+function seeded(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}
+  return ()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);h^=h>>>16;return (h>>>0)/4294967296;};}
+function shuffled(arr,rnd){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function qOrder(){const rnd=seeded('order:'+state.me);return shuffled(QS,rnd);}
+function optOrder(q){return shuffled(q.o.map((_,j)=>j),seeded('opt:'+state.me+':'+q.id));}
+function startedAt(key){
+  if(state.qStart[key])return state.qStart[key];
+  let t=null;try{t=+localStorage.getItem('ip_t_'+state.me+'_'+key)||null;}catch(e){}
+  if(!t){t=Date.now();try{localStorage.setItem('ip_t_'+state.me+'_'+key,String(t));}catch(e){}}
+  return state.qStart[key]=t;
+}
+const fmtTime=sec=>Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
 function assessment(s){
   const ans=s.answers||{};
-  if(state.qi==null){const f=QS.findIndex(q=>ans[q.id]==null);state.qi=f<0?QS.length-1:f;}
-  const i=state.qi,q=QS[i],done=QS.filter(q=>ans[q.id]!=null).length,cat=CATS.find(c=>c.k===q.cat).name;
-  const allDone=done===QS.length;
-  return `<div class="paper">
-   <div class="qmeta"><span>Question ${i+1} of ${QS.length} · ${esc(cat)}</span><span>${done} answered · progress saves automatically</span></div>
-   <div class="progress"><span style="width:${done/QS.length*100}%"></span></div>
-   <p class="qtext">${esc(q.q)}</p>
-   <div class="opts">${q.o.map((o,j)=>`<button class="opt${ans[q.id]===j?' sel':''}" data-ans="${j}" data-q="${q.id}">${esc(o[0])}</button>`).join('')}</div>
-   <div class="row" style="justify-content:space-between;margin-top:18px">
-    <button class="btn btn-outline" data-act="prevQ" ${i===0?'disabled':''}>Back</button>
-    ${allDone?`<button class="btn btn-dark" data-act="finish">See my report</button>`:`<button class="btn btn-outline" data-act="nextQ" ${i===QS.length-1||ans[q.id]==null?'disabled':''}>Next</button>`}
-   </div></div>`;
+  const done=QS.filter(q=>ans[q.id]!=null).length;
+  if(!done&&!state.aStarted)return `<div class="paper stack">
+    <h2>Before you start</h2>
+    <p class="sub">The assessment has <b>24 questions</b> on communication, problem solving, professional readiness and digital skills, then <b>one short writing task</b>. It takes about 25 minutes.</p>
+    <ul class="sub" style="margin:0;padding-left:20px;line-height:1.7">
+     <li>Each question is timed: ${TIMES.mcq} seconds for choice questions, ${TIMES.num/60} minutes for calculations and ${TIMES.writing/60} minutes for the writing task.</li>
+     <li>You cannot go back to change an answer, so read each one carefully.</li>
+     <li>If time runs out, the question is marked unanswered and you move on.</li>
+     <li>Several answers can sound reasonable. Pick the one you would really do at work.</li>
+     <li>You can use a calculator. Find a quiet spot with a steady connection.</li>
+    </ul>
+    <div class="row"><button class="btn btn-accent" data-act="startA">Start the assessment</button></div></div>`;
+  const order=qOrder();const q=order.find(x=>ans[x.id]==null);
+  const bar=`<div class="progress"><span style="width:${(done+(q?0:1))/(QS.length+1)*100}%"></span></div>`;
+  if(q){
+    const i=order.indexOf(q),lim=q.num?TIMES.num:TIMES.mcq,dl=startedAt(q.id)+lim*1000;
+    const cat=CATS.find(c=>c.k===q.cat).name;
+    const body=q.num?`<form id="numForm" class="row" style="margin-top:14px;align-items:flex-end" novalidate>
+        <label class="f" style="max-width:220px">Your answer (numbers only)<input id="n-ans" inputmode="decimal" autocomplete="off" data-qid="${q.id}"></label>
+        <button class="btn btn-dark" type="submit">Submit answer</button></form>`
+      :`<div class="opts">${optOrder(q).map(j=>`<button class="opt" data-ans="${j}" data-q="${q.id}">${esc(q.o[j][0])}</button>`).join('')}</div>`;
+    return `<div class="paper">
+     <div class="qmeta"><span>Question ${i+1} of ${QS.length} · ${esc(cat)}</span><span class="mono" id="qtimer" data-deadline="${dl}" data-kind="q" data-qid="${q.id}">${fmtTime(lim)}</span></div>
+     ${bar}<p class="qtext">${esc(q.q)}</p>${body}
+     <p class="small muted" style="margin-top:14px">Answers save as you go. You cannot go back once you answer.</p></div>`;
+  }
+  const dl=startedAt('wr1')+TIMES.writing*1000;
+  if(state.wDraft==null){try{state.wDraft=localStorage.getItem('ip_w_'+state.me)||'';}catch(e){state.wDraft='';}}
+  const wc=state.wDraft.trim().split(/\s+/).filter(Boolean).length;
+  return `<div class="paper stack">
+    <div class="qmeta"><span>Final task · Writing</span><span class="mono" id="qtimer" data-deadline="${dl}" data-kind="w">${fmtTime(TIMES.writing)}</span></div>${bar}
+    <p class="qtext" style="margin-top:6px">${esc(WRITING.prompt)}</p>
+    <label class="f">Your reply<textarea id="w-text" style="min-height:200px" maxlength="2000">${esc(state.wDraft)}</textarea></label>
+    <div class="row" style="justify-content:space-between"><span class="small muted" id="wcount">${wc} words · aim for 60 to 150</span>
+     <button class="btn btn-dark" data-act="submitWriting" ${state.busy?'disabled':''}>${state.busy?'Submitting…':'Submit and see my report'}</button></div>
+    <p class="small muted">Your reply is scored against a fixed rubric: empathy, ownership, a clear explanation with both options, next steps, and tone. English or Arabic are both fine.</p></div>`;
+}
+async function saveAnswer(qid,val){
+  const s=meDoc();if(!s||s.answers?.[qid]!=null)return;
+  s.answers={...(s.answers||{}),[qid]:val};draw();
+  try{await q(stu().update({answers:s.answers,status:'started'}).eq('id',state.me).select('id'));}catch(err){fail(err);}
+}
+async function submitWriting(timedOut){
+  const s=meDoc();if(!s||state.busy)return;
+  const text=(state.wDraft||'').trim()||'[no answer]';
+  state.busy=true;draw();
+  try{
+    await q(stu().update({answers:s.answers,task_writing:text,status:'completed'}).eq('id',state.me).select('id'));
+    try{localStorage.removeItem('ip_w_'+state.me);}catch(e){}
+    if(timedOut)toast('Time is up. Your writing was submitted.');
+    sb.functions.invoke('score-writing',{body:{}}).then(()=>load()).catch(e=>console.warn(e));
+    state.busy=false;await load();window.scrollTo(0,0);
+  }catch(err){state.busy=false;fail(err);draw();}
+}
+setInterval(()=>{
+  const el=document.getElementById('qtimer');if(!el)return;
+  const left=Math.max(0,Math.ceil((+el.dataset.deadline-Date.now())/1000));
+  el.textContent=fmtTime(left);el.style.color=left<=10?'#B3261E':'';
+  if(left>0||el.dataset.fired)return;el.dataset.fired='1';
+  if(el.dataset.kind==='w'){submitWriting(true);return;}
+  const qq=QS.find(x=>x.id===el.dataset.qid);
+  if(qq.num){const v=(document.getElementById('n-ans')?.value||'').trim();saveAnswer(qq.id,v);}else saveAnswer(qq.id,-1);
+  toast('Time is up for that question.');
+},500);
+function waitlistBox(s,low){
+  const on=(s.waitlistAreas||[]).length>0;
+  const names=(on?s.waitlistAreas:low.map(c=>c.k)).map(k=>CATS.find(c=>c.k===k)?.name).filter(Boolean).join(', ');
+  return on?`<div class="notice" style="color:var(--card-sub);border-color:var(--card-line)"><b style="color:var(--card-ink)">You are on the waitlist</b> for hands-on help with ${esc(names)}. We will message you first when it opens. <button class="btn btn-ghost" data-act="leaveWaitlist" style="padding:4px 8px">Leave the waitlist</button></div>`
+   :`<div class="notice stack" style="gap:8px;color:var(--card-sub);border-color:var(--card-line)"><span><b style="color:var(--card-ink)">Want hands-on help?</b> We are planning coaching for ${esc(names)}. Join the waitlist and we will let you know first. Nothing to pay now.</span><div><button class="btn btn-outline" data-act="joinWaitlist">Join the waitlist</button></div></div>`;
 }
 function ring(t){
   const r=54,c=2*Math.PI*r,o=c*(1-t/100);
@@ -647,15 +718,21 @@ function ring(t){
 }
 function report(s){
   const sc=catScores(s),t=scoreOf(s);
+  const notes=[];
+  if(s.writingScore==null)notes.push('Your writing task is being scored. Communication shows your question results for now and will update shortly. Refresh the page in a minute.');
+  if(!s.expVerified)notes.push('Experience is capped at 50 until the Intern+ team checks it against your CV.');
+  const rank=state.pct&&state.pct.pct!=null?`<p class="sub"><b>Top ${Math.max(1,100-state.pct.pct)}%</b> of ${state.pct.n} pilot students so far.</p>`:`<p class="small muted">Your ranking against other students appears once 50 have finished the assessment.</p>`;
   const low=[...CATS].filter(c=>sc[c.k]<80).sort((a,b)=>sc[a.k]-sc[b.k]).slice(0,3);
   return `<div class="paper stack">
-   <div class="scorehead">${ring(t)}<div class="stack" style="gap:6px;min-width:0"><span class="band">${esc(band(t))}</span><h2 style="font-size:1.3rem">${esc(s.name||'Your')} employability report</h2><p class="sub">${esc(s.university||'')}${s.major?' · '+esc(s.major):''}${s.gradYear?' · Class of '+esc(s.gradYear):''}</p></div></div>
+   <div class="scorehead">${ring(t)}<div class="stack" style="gap:6px;min-width:0"><span class="band">${esc(band(t))}</span><h2 style="font-size:1.3rem">${esc(s.name||'Your')} employability report</h2><p class="sub">${esc(s.university||'')}${s.major?' · '+esc(s.major):''}${s.gradYear?' · Class of '+esc(s.gradYear):''}</p>${rank}</div></div>
+   ${notes.length?`<div class="notice" style="color:var(--card-sub);border-color:var(--card-line)">${notes.map(esc).join('<br>')}</div>`:''}
    <div class="divider"></div>
    <h2>How your score is built</h2>
    <div class="bars">${CATS.map(c=>`<div class="bar"><div>${esc(c.name)} <span class="w">${Math.round(c.w*100)}%</span></div><div class="track"><div class="fill${sc[c.k]<60?' low':''}" style="width:${sc[c.k]}%"></div></div><div class="pct">${sc[c.k]}</div></div>`).join('')}</div>
+   ${s.writingFeedback?`<p class="sub"><b>Writing feedback:</b> ${esc(s.writingFeedback)}</p>`:''}
    <div class="divider"></div>
    <h2>${low.length?'Where to focus':'Your strengths'}</h2>
-   ${low.length?`<p class="sub">Free tips you can act on yourself, for the areas that scored below 80.</p><div class="actions">${low.map(c=>`<div class="action"><div><b>${esc(TIPS[c.k][0])}</b><span>${esc(c.name)} scored ${sc[c.k]}. ${esc(TIPS[c.k][1])}</span></div></div>`).join('')}</div>`:`<p class="sub">You scored 80 or more in every area. Keep your profile up to date and apply to the open roles below.</p>`}
+   ${low.length?`<p class="sub">Free tips you can act on yourself, for the areas that scored below 80.</p><div class="actions">${low.map(c=>`<div class="action"><div><b>${esc(TIPS[c.k][0])}</b><span>${esc(c.name)} scored ${sc[c.k]}. ${esc(TIPS[c.k][1])}</span></div></div>`).join('')}</div>${waitlistBox(s,low)}`:`<p class="sub">You scored 80 or more in every area. Keep your profile up to date and apply to the open roles below.</p>`}
    <div class="divider"></div>
    <div class="stack" style="gap:10px"><h2>Was this report useful?</h2>
     <div class="row">${[['useful','Yes, useful'],['somewhat','Somewhat'],['not','Not really']].map(([k,l])=>`<button class="btn ${s.survey===k?'btn-dark':'btn-outline'}" data-survey="${k}">${l}</button>`).join('')}</div>
@@ -679,7 +756,7 @@ function talentView(){
     const req=role?.requests?.[t.id],inSl=role?.shortlist?.[t.id];
     const act=!role?`<span class="sub">Create a role to request an intro.</span>`:inSl?`<span class="status sent">In your shortlist</span>`:req?`<span class="status review">Intro requested</span><span class="sub">Intern+ will confirm and share contact details.</span>`:`<button class="btn btn-dark" data-intro="${t.id}">Request intro</button>`;
     const b=role?blockers(t,role):[];
-    return `<div class="cand"><div><div class="nm">${alias(t.id)} ${t.sample?'<span class="sample">Sample</span>':''}</div><div class="meta">${esc(t.university)} · ${esc(t.major)} · Class of ${esc(t.gradYear)} · ${esc(t.location)}</div><div class="meta">${esc(studentFacts(t))}</div></div>
+    return `<div class="cand"><div><div class="nm">${alias(t.id)} ${t.sample?'<span class="sample">Sample</span>':''}${t.pct!=null?` <span class="pill">Top ${Math.max(1,100-t.pct)}%</span>`:''}${t.expVerified?' <span class="pill done">Experience verified</span>':''}</div><div class="meta">${esc(t.university)} · ${esc(t.major)} · Class of ${esc(t.gradYear)} · ${esc(t.location)}</div><div class="meta">${esc(studentFacts(t))}</div></div>
      <div class="score">${role?x.m+'%':t.total}<small>${role?'match':'Intern+ score'}</small></div>
      <div class="why">${role?esc(x.why):`Intern+ score ${t.total}, ${esc(band(t.total))}.`} Skills: ${esc((t.skills||[]).join(', '))}.</div>
      ${role&&b.length?`<div class="gap">Note: ${esc(b.join('; '))}</div>`:role&&x.miss.length?`<div class="gap">Missing: ${esc(x.miss.join(', '))}</div>`:''}
@@ -798,16 +875,45 @@ function viewAdmin(){
    </div>
    <div class="panel stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:1.05rem">Pilot funnel</h2><span class="small muted mono">Free pilot · ${S.length} student${S.length===1?'':'s'} · Report useful ${useful==null?'n/a':useful+'%'}</span></div>
     <div class="funnel">${stages.map(([l,n],i)=>`<div class="fstage"><div>${l}</div><div class="ftrack"><div class="ffill" style="width:${n/max*100}%"></div></div><div class="fnum">${n}${i?` <small>${stages[i-1][1]?Math.round(n/stages[i-1][1]*100):0}%</small>`:''}</div></div>`).join('')}</div></div>
+   ${adminWriting(S)}
+   ${adminWaitlist(S)}
+   ${adminQuality(S)}
    <div class="stack"><h2 style="font-size:1.05rem">Roles to approve <span class="faint small">(${toApprove.length})</span></h2>
     ${toApprove.length?toApprove.map(approveCard).join(''):`<div class="notice">No roles waiting. New role briefs from employers land here before they go live to students.</div>`}</div>
    <div class="stack"><h2 style="font-size:1.05rem">Shortlists and intro requests <span class="faint small">(${live.length})</span></h2>
     ${live.length?live.map(reviewCard).join(''):`<div class="notice">Approved roles appear here with their applicants and the best-matched candidates from the pool.</div>`}</div>
    <div class="stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:1.05rem">Students <span class="faint small">(${S.length})</span></h2>
     ${S.some(s=>s.sample)?(state.confirmClear?`<div class="row"><span class="small muted">Delete all sample students?</span><button class="btn btn-outline" data-act="clearSamples">Yes, delete</button><button class="btn btn-ghost" data-act="cancelClear">Keep them</button></div>`:`<button class="btn btn-outline" data-act="askClear">Remove sample students</button>`):''}</div>
-    <div class="tablewrap"><table><thead><tr><th>Name</th><th>University · major</th><th>Stage</th><th>Status</th><th>Score</th><th>Band</th><th>Override</th><th>Report useful?</th></tr></thead><tbody>
-    ${S.sort((a,b)=>scoreOf(b)-scoreOf(a)).map(s=>{const t=s.status==='completed'?scoreOf(s):null;return `<tr><td>${esc(s.name)} ${s.sample?'<span class="sample">Sample</span>':''}</td><td>${esc(s.university)} · ${esc(s.major)}</td><td>${esc(statusLabel(s.statusNow)||'n/a')}</td><td><span class="pill${s.status==='completed'?' done':''}">${esc(s.status==='completed'?'Completed':s.status==='started'?'In assessment':'Profile only')}</span></td><td class="num">${t??'n/a'}</td><td>${t==null?'':esc(band(t))}</td><td><input class="ovr" type="number" min="0" max="100" aria-label="Score override for ${esc(s.name)}" data-ovr="${s.id}" value="${s.override??''}" placeholder="auto"></td><td>${esc(s.survey||'')}</td></tr>`;}).join('')||'<tr><td colspan="8" class="muted">No students yet.</td></tr>'}
+    <div class="tablewrap"><table><thead><tr><th>Name</th><th>University · major</th><th>Stage</th><th>Status</th><th>Score</th><th>Band</th><th>Exp. verified</th><th>Override</th><th>Report useful?</th><th></th></tr></thead><tbody>
+    ${S.sort((a,b)=>scoreOf(b)-scoreOf(a)).map(s=>{const t=s.status==='completed'?scoreOf(s):null;return `<tr><td>${esc(s.name)} ${s.sample?'<span class="sample">Sample</span>':''}</td><td>${esc(s.university)} · ${esc(s.major)}</td><td>${esc(statusLabel(s.statusNow)||'n/a')}</td><td><span class="pill${s.status==='completed'?' done':''}">${esc(s.status==='completed'?'Completed':s.status==='started'?'In assessment':'Profile only')}</span></td><td class="num">${t??'n/a'}</td><td>${t==null?'':esc(band(t))}</td><td><input type="checkbox" data-expv="${s.id}" ${s.expVerified?'checked':''} aria-label="Experience verified for ${esc(s.name)}" style="accent-color:var(--grad1)">${s.cvPath?' '+cvLink(s.cvPath):''}</td><td><input class="ovr" type="number" min="0" max="100" aria-label="Score override for ${esc(s.name)}" data-ovr="${s.id}" value="${s.override??''}" placeholder="auto"></td><td>${esc(s.survey||'')}</td><td>${s.sample||s.status==='registered'&&!Object.keys(s.answers||{}).length?'':state.confirmReset===s.id?`<button class="btn btn-outline" data-reset="${s.id}" style="padding:4px 8px">Confirm reset</button>`:`<button class="btn btn-ghost" data-askreset="${s.id}" style="padding:4px 8px">Reset test</button>`}</td></tr>`;}).join('')||'<tr><td colspan="10" class="muted">No students yet.</td></tr>'}
     </tbody></table></div></div>
   </div>`;
+}
+function adminWriting(S){
+  const list=S.filter(s=>s.status==='completed'&&!s.sample&&s.taskWriting).sort((a,b)=>(a.writingScore!=null)-(b.writingScore!=null));
+  if(!list.length)return '';
+  const todo=list.filter(s=>s.writingScore==null).length;
+  return `<div class="panel stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:1.05rem">Writing tasks <span class="faint small">(${todo} waiting for a score)</span></h2><span class="small muted">Claude scores each reply out of 100 with the rubric. Type a number to override.</span></div>
+   ${list.map(s=>`<div class="paper stack" style="gap:8px"><div class="row" style="justify-content:space-between"><b>${esc(s.name)}</b><span class="small muted">${s.writingScore==null?'Not scored yet':`Scored ${s.writingScore} by ${esc(s.writingScoredBy==='ai'?'Claude':s.writingScoredBy||'admin')}`}</span></div>
+    <p class="sub" style="white-space:pre-wrap">${esc(s.taskWriting)}</p>${s.writingFeedback?`<p class="small muted">Feedback: ${esc(s.writingFeedback)}</p>`:''}
+    <div class="row"><input class="ovr" type="number" min="0" max="100" placeholder="score" value="${s.writingScore??''}" data-wscore="${s.id}" aria-label="Writing score for ${esc(s.name)}"><button class="btn btn-outline" data-aiscore="${s.id}" style="padding:6px 10px">${s.writingScore==null?'Score with Claude':'Rescore with Claude'}</button></div></div>`).join('')}</div>`;
+}
+function adminWaitlist(S){
+  const w=S.filter(s=>(s.waitlistAreas||[]).length&&!s.sample);
+  const by=CATS.map(c=>[c.name,w.filter(s=>s.waitlistAreas.includes(c.k)).length]).filter(x=>x[1]);
+  const elig=S.filter(s=>s.status==='completed'&&!s.sample&&CATS.some(c=>(catScores(s)[c.k]??100)<80)).length;
+  return `<div class="panel stack"><div class="row" style="justify-content:space-between"><h2 style="font-size:1.05rem">Coaching waitlist <span class="faint small">(${w.length})</span></h2><span class="small muted">${elig?Math.round(w.length/elig*100):0}% of the ${elig} students who saw the offer joined</span></div>
+   ${w.length?`<p class="sub">${by.map(([n,c])=>`${esc(n)}: ${c}`).join(' · ')}</p><p class="small muted">${w.map(s=>esc(s.name)+' ('+esc(s.email)+')').join(', ')}</p>`:'<p class="sub">Nobody has joined yet. Students scoring under 80 in any area see a "Join the waitlist" button in their report.</p>'}</div>`;
+}
+function adminQuality(S){
+  const done=S.filter(s=>s.status==='completed'&&!s.sample&&Object.keys(s.answers||{}).length>=QS.length);
+  const n=done.length;
+  const rows=QS.map(q=>{const best=done.filter(s=>itemPts(q,s.answers[q.id])===3).length,to=done.filter(s=>s.answers[q.id]===-1||s.answers[q.id]==='').length;
+    const pct=n?Math.round(best/n*100):null;const flag=n>=10&&pct>85?'Too easy':n>=10&&pct<15?'Check wording':'';
+    return `<tr><td class="mono">${q.id}</td><td>${esc(CATS.find(c=>c.k===q.cat).name)}</td><td>${esc(q.q.length>90?q.q.slice(0,90)+'…':q.q)}</td><td class="num">${pct==null?'n/a':pct+'%'}</td><td class="num">${to}</td><td>${flag?`<span class="pill">${flag}</span>`:''}</td></tr>`;}).join('');
+  return `<details class="panel"><summary style="cursor:pointer"><b>Question quality</b> <span class="small muted">· ${n} real student${n===1?'':'s'} · flags appear from 10</span></summary>
+   <p class="small muted" style="margin:10px 0">Share of students giving the best answer. Above 85% means the question is too easy to separate people; below 15% usually means it is unclear.</p>
+   <div class="tablewrap"><table><thead><tr><th>ID</th><th>Area</th><th>Question</th><th>Best answer</th><th>Timed out</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
 }
 function roleMeta(r){return `<p class="sub">${esc(r.company)} · ${esc(roleFacts(r))} · min score ${esc(r.minScore)}${r.ats?' · ATS: '+esc(r.ats):''}</p><p class="sub">Must: ${esc((r.must||[]).join(', ')||'none')} · Nice: ${esc((r.nice||[]).join(', ')||'none')} · Fields: ${esc((r.fields||[]).join(', ')||'any')} · Stage: ${esc((r.stages||[]).map(statusLabel).join(', ')||'any')} · Years: ${esc((r.years||[]).join(', ')||'any')}</p>`;}
 function approveCard(r){
@@ -831,7 +937,8 @@ function reviewCard(r){
 }
 
 /* ---------- EVENTS ---------- */
-document.addEventListener('input',e=>{const k=e.target.dataset?.d;if(k)state.draft[k]=e.target.value;});
+document.addEventListener('input',e=>{const k=e.target.dataset?.d;if(k)state.draft[k]=e.target.value;
+  if(e.target.id==='w-text'){state.wDraft=e.target.value;try{localStorage.setItem('ip_w_'+state.me,state.wDraft);}catch(x){}const c=document.getElementById('wcount');if(c)c.textContent=state.wDraft.trim().split(/\s+/).filter(Boolean).length+' words · aim for 60 to 150';}});
 document.addEventListener('change',async e=>{
   const t=e.target;
   if(t.dataset.d)state.draft[t.dataset.d]=t.value;
@@ -843,6 +950,8 @@ document.addEventListener('change',async e=>{
   if(t.id==='p-visible'){try{await q(sb.from('students').update({visible:t.checked}).eq('id',state.me).select());toast(t.checked?'Your profile is visible to employers':'Your profile is hidden from employers');await load();}catch(err){fail(err);}}
   if(t.dataset.rid){try{await q(sb.from('shortlist').update({status:t.value,updated_at:new Date().toISOString()}).eq('role_id',t.dataset.rid).eq('student_id',t.dataset.sid).select('status'));toast('Status updated');await load();}catch(err){fail(err);}}
   if(t.dataset.ovr){const v=t.value===''?null:clamp(+t.value,0,100);try{await q(sb.from('students').update({override:v}).eq('id',t.dataset.ovr).select('id'));toast(v==null?'Override removed':'Score set to '+v);await load();}catch(err){fail(err);}}
+  if(t.dataset.expv){try{await q(stu().update({exp_verified:t.checked}).eq('id',t.dataset.expv).select('id'));toast(t.checked?'Experience verified':'Verification removed');await load();}catch(err){fail(err);}}
+  if(t.dataset.wscore){const v=t.value===''?null:clamp(Math.round(+t.value),0,100);try{await q(stu().update({writing_score:v,writing_scored_by:v==null?'':'admin'}).eq('id',t.dataset.wscore).select('id'));toast(v==null?'Writing score cleared':'Writing scored '+v);await load();}catch(err){fail(err);}}
   if(t.dataset.pick){const p=state.pick[t.dataset.pick];t.checked?p.add(t.dataset.sid):p.delete(t.dataset.sid);draw();}
 });
 function chipAct(el){
@@ -855,25 +964,23 @@ function chipAct(el){
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList?.contains('chip')){e.preventDefault();chipAct(e.target);}});
 const stu=()=>sb.from('students');
 document.addEventListener('click',async e=>{
-  const el=e.target.closest('[data-tab],[data-skill],[data-rskill],[data-rlist],[data-multi],[data-ans],[data-act],[data-survey],[data-send],[data-csv],[data-apply],[data-approve],[data-emptab],[data-intro],[data-authmode]');if(!el)return;
+  const el=e.target.closest('[data-tab],[data-skill],[data-rskill],[data-rlist],[data-multi],[data-ans],[data-act],[data-survey],[data-send],[data-csv],[data-apply],[data-approve],[data-emptab],[data-intro],[data-authmode],[data-aiscore],[data-askreset],[data-reset]');if(!el)return;
   if(el.dataset.tab){state.tab=el.dataset.tab;state.err='';state.auth={mode:'signin',msg:'',err:''};try{if(state.tab!=='admin')localStorage.setItem('ip_tab',state.tab);}catch(x){}if(state.tab!=='admin'&&location.hash==='#admin')history.replaceState(null,'',location.pathname+location.search);draw();window.scrollTo(0,0);return;}
   if(el.dataset.authmode){state.auth={mode:el.dataset.authmode,msg:'',err:''};draw();return;}
   if(chipAct(el))return;
   if(el.dataset.emptab){state.empTab=el.dataset.emptab;state.err='';draw();return;}
   if(el.dataset.intro){try{await q(sb.from('intro_requests').insert({role_id:state.tRole,student_id:el.dataset.intro}).select());toast('Intro requested. Intern+ will confirm.');await load();}catch(err){fail(err);}return;}
-  if(el.dataset.ans){
-    const s=meDoc();const qid=el.dataset.q,j=+el.dataset.ans;
-    s.answers={...(s.answers||{}),[qid]:j};
-    if(state.qi<QS.length-1)state.qi++;draw();
-    try{await q(stu().update({answers:s.answers,status:'started'}).eq('id',state.me).select('id'));}catch(err){fail(err);}
-    return;
-  }
+  if(el.dataset.ans){await saveAnswer(el.dataset.q,+el.dataset.ans);return;}
+  if(el.dataset.aiscore){el.disabled=true;el.textContent='Scoring…';try{const {data,error}=await sb.functions.invoke('score-writing',{body:{student_id:el.dataset.aiscore,force:true}});if(error||data?.error)throw new Error(data?.error||'AI scoring is not available yet. Type a score instead.');toast('Scored '+data.score);await load();}catch(err){toast(/not set up|Type a score/.test(err.message)?err.message:'AI scoring is not available yet. Type a score instead.');draw();}return;}
+  if(el.dataset.askreset){state.confirmReset=el.dataset.askreset;draw();return;}
+  if(el.dataset.reset){state.confirmReset=null;try{await q(stu().update({status:'registered',answers:{},task_writing:'',scores:null,total:null,completed_at:null,writing_score:null,writing_feedback:'',writing_scored_by:''}).eq('id',el.dataset.reset).select('id'));toast('Assessment reset. The student can retake it.');await load();}catch(err){fail(err);}return;}
   const a=el.dataset.act;
   if(a==='reload'){await load();toast('Data refreshed');}
   if(a==='signout'){await sb.auth.signOut();state.tab='home';toast('Signed out');return;}
-  if(a==='prevQ'){state.qi=Math.max(0,state.qi-1);draw();}
-  if(a==='nextQ'){state.qi=Math.min(QS.length-1,state.qi+1);draw();}
-  if(a==='finish'){const s=meDoc();try{await q(stu().update({answers:s.answers,status:'completed'}).eq('id',state.me).select('id'));await load();window.scrollTo(0,0);}catch(err){fail(err);}}
+  if(a==='startA'){state.aStarted=true;draw();window.scrollTo(0,0);}
+  if(a==='submitWriting')await submitWriting(false);
+  if(a==='joinWaitlist'||a==='leaveWaitlist'){const s=meDoc();const sc=catScores(s);const areas=a==='joinWaitlist'?CATS.filter(c=>sc[c.k]<80).sort((x,y)=>sc[x.k]-sc[y.k]).slice(0,3).map(c=>c.k):[];
+    try{await q(stu().update({waitlist_areas:areas,waitlist_at:areas.length?new Date().toISOString():null}).eq('id',state.me).select('id'));toast(areas.length?'You are on the waitlist':'You left the waitlist');await load();}catch(err){fail(err);}}
   if(a==='editProfile'){state.editProfile=true;state.skills=null;state.multi=null;state.cvFile=null;state.draft={};state.err='';draw();window.scrollTo(0,0);}
   if(a==='cancelEdit'){state.editProfile=false;state.draft={};state.err='';draw();}
   if(a==='askClear'){state.confirmClear=true;draw();}
@@ -893,6 +1000,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('submit',async e=>{
   e.preventDefault();const f=e.target;state.err='';const d=state.draft;
+  if(f.id==='numForm'){const i=$('#n-ans');const v=(i.value||'').trim();if(!v){i.focus();return;}await saveAnswer(i.dataset.qid,v);return;}
   if(f.id==='authForm'){
     const email=String($('#a-email').value||'').trim(),pass=$('#a-pass')?.value||'',kind=f.dataset.kind,mode=state.auth.mode;
     state.auth.err='';state.auth.msg='';
