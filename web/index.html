@@ -307,12 +307,13 @@ const QS=[
  {id:'d2',cat:'digi',q:'What is the best way for a team to edit one version of a large file?',o:[['Email the file to each person',0],['A shared cloud document with edit access',2],['Pass it around on a USB stick',0],['Send it in a WhatsApp group',0]]},
  {id:'d3',cat:'digi',q:'Which password is strongest?',o:[['Ahmed1999',0],['password123',0],['A long phrase of unrelated words plus a number',2],['Your phone number',0]]}
 ];
-const ACTIONS={
- comm:['Book a mock interview with an HR evaluator','Practise short written updates: status, progress, then risk.'],
- prob:['Work through three business cases with a mentor','Practise breaking a problem down before jumping to a fix.'],
- prof:['Join a workplace readiness session','Covers deadlines, owning mistakes and acting on feedback.'],
- digi:['Complete an Excel or Power BI certification','The tools employers in the pilot ask for most.'],
- exp:['Add a project, volunteer role or competition','Experience is 25% of your score; one real project moves it.']
+// Free, self-guided tips. No paid Intern+ services are offered during the pilot.
+const TIPS={
+ comm:['Sharpen how you write and speak at work','Lead with the point: status first, then progress, then any risk. Keep updates to three lines and reply with a time when you need to check something.'],
+ prob:['Practise breaking problems down','Before suggesting a fix, ask what changed and where. Try free business cases online and talk through your steps out loud.'],
+ prof:['Build strong workplace habits','Warn people early if you will be late, own mistakes the same day, and ask what "good" looks like when you get feedback.'],
+ digi:['Level up your digital tools','Free courses on Excel, Google Sheets and AI tools take a few hours. Add any skills you learn to your profile so employers can find you.'],
+ exp:['Add real experience to your profile','A class project, volunteer role, competition or freelance gig all count. Experience is 25% of your score, so one real project moves it.']
 };
 
 /* ---------- SCORING + MATCHING ---------- */
@@ -498,7 +499,7 @@ function viewHome(){
    <div class="secthead"><span class="eyebrow">How the pilot works</span><h2>One loop, from assessment to interview</h2></div>
    <div class="loop">
     <div class="loopstep"><span class="n">1</span><h3>Assess</h3><p>A student builds a profile and answers 12 workplace questions in about 15 minutes.</p></div>
-    <div class="loopstep"><span class="n">2</span><h3>Score</h3><p>They get a score out of 100, a readiness band and three next steps to improve it.</p></div>
+    <div class="loopstep"><span class="n">2</span><h3>Score</h3><p>They get a score out of 100, a readiness band, and a breakdown of their strengths and gaps.</p></div>
     <div class="loopstep"><span class="n">3</span><h3>Match</h3><p>Students apply to open roles. Employers browse anonymous profiles and request intros. Our team confirms who is shared.</p></div>
     <div class="loopstep"><span class="n">4</span><h3>Interview</h3><p>The employer gets the shortlist with contact details and tracks who they interview and hire.</p></div>
    </div>
@@ -510,7 +511,7 @@ function viewHome(){
     <div class="audcard lead-card">
      <span class="who">Students &amp; fresh graduates</span>
      <h3>Know where you stand before you apply.</h3>
-     <ul><li>A clear employability score instead of silent rejections</li><li>Your strongest and weakest areas, broken down</li><li>Three concrete steps to raise your score</li><li>Open roles ranked by your fit, with one-tap apply</li><li>Employers find you without seeing your name until you are introduced</li></ul>
+     <ul><li>A clear employability score instead of silent rejections</li><li>Your strongest and weakest areas, broken down</li><li>Free tips for the areas that need work</li><li>Open roles ranked by your fit, with one-tap apply</li><li>Employers find you without seeing your name until you are introduced</li></ul>
      <button class="btn btn-dark" data-tab="student">Start your profile</button>
     </div>
     <div class="audcard">
@@ -550,7 +551,7 @@ function stepper(n){
 }
 function opt(list,val,ph){return `<option value="">${ph}</option>`+list.map(x=>`<option${String(val)===x?' selected':''}>${esc(x)}</option>`).join('');}
 function viewStudent(){
-  const head=`<div class="pagehead"><span class="eyebrow">For students &amp; fresh graduates</span><h1>Find out where you stand.<br><span class="hl">Then get matched.</span></h1><p class="lead">Build your profile, take the 12-question employability assessment, and get your score with three clear next steps. Pilot employers see ranked, explained shortlists built from these results.</p></div>`;
+  const head=`<div class="pagehead"><span class="eyebrow">For students &amp; fresh graduates</span><h1>Find out where you stand.<br><span class="hl">Then get matched.</span></h1><p class="lead">Build your profile, take the 12-question employability assessment, and get your score with a breakdown of your strengths and gaps. Pilot employers see ranked, explained shortlists built from these results.</p></div>`;
   {const g=gate('student');if(g)return head+g;}
   const s=meDoc();
   if(!s||state.editProfile)return head+stepper(0)+profileForm(s);
@@ -646,19 +647,19 @@ function ring(t){
 }
 function report(s){
   const sc=catScores(s),t=scoreOf(s);
-  const low=[...CATS].sort((a,b)=>sc[a.k]-sc[b.k]).slice(0,3);
+  const low=[...CATS].filter(c=>sc[c.k]<80).sort((a,b)=>sc[a.k]-sc[b.k]).slice(0,3);
   return `<div class="paper stack">
    <div class="scorehead">${ring(t)}<div class="stack" style="gap:6px;min-width:0"><span class="band">${esc(band(t))}</span><h2 style="font-size:1.3rem">${esc(s.name||'Your')} employability report</h2><p class="sub">${esc(s.university||'')}${s.major?' · '+esc(s.major):''}${s.gradYear?' · Class of '+esc(s.gradYear):''}</p></div></div>
    <div class="divider"></div>
    <h2>How your score is built</h2>
    <div class="bars">${CATS.map(c=>`<div class="bar"><div>${esc(c.name)} <span class="w">${Math.round(c.w*100)}%</span></div><div class="track"><div class="fill${sc[c.k]<60?' low':''}" style="width:${sc[c.k]}%"></div></div><div class="pct">${sc[c.k]}</div></div>`).join('')}</div>
    <div class="divider"></div>
-   <h2>Your next three steps</h2>
-   <div class="actions">${low.map(c=>`<div class="action"><div><b>${esc(ACTIONS[c.k][0])}</b><span>${esc(c.name)} is ${sc[c.k]}, one of your lowest areas. ${esc(ACTIONS[c.k][1])}</span></div></div>`).join('')}</div>
+   <h2>${low.length?'Where to focus':'Your strengths'}</h2>
+   ${low.length?`<p class="sub">Free tips you can act on yourself, for the areas that scored below 80.</p><div class="actions">${low.map(c=>`<div class="action"><div><b>${esc(TIPS[c.k][0])}</b><span>${esc(c.name)} scored ${sc[c.k]}. ${esc(TIPS[c.k][1])}</span></div></div>`).join('')}</div>`:`<p class="sub">You scored 80 or more in every area. Keep your profile up to date and apply to the open roles below.</p>`}
    <div class="divider"></div>
    <div class="stack" style="gap:10px"><h2>Was this report useful?</h2>
     <div class="row">${[['useful','Yes, useful'],['somewhat','Somewhat'],['not','Not really']].map(([k,l])=>`<button class="btn ${s.survey===k?'btn-dark':'btn-outline'}" data-survey="${k}">${l}</button>`).join('')}</div>
-    <p class="sub">${s.survey?'Thanks. Your answer helps us improve the report.':'One tap. It tells us whether this report is worth paying for.'}</p></div>
+    <p class="sub">${s.survey?'Thanks. Your answer helps us improve the report.':'One tap. It helps us make the report more useful.'}</p></div>
    <label class="check" style="color:var(--card-ink)"><input type="checkbox" id="p-visible" ${s.visible!==false?'checked':''} style="accent-color:var(--grad1)"> <span><b>Show my profile to employers.</b> <span class="sub">Employers see your university, major, year, city, skills and score, never your name or contact details. Those are shared only when the Intern+ team confirms an intro or shortlists you.</span></span></label>
    <div class="row"><button class="btn btn-outline" data-act="editProfile">Edit profile</button></div>
   </div>`;
