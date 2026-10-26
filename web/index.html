@@ -240,6 +240,8 @@ const UNI_GROUPS=[
  ['National and international universities',['Galala University','King Salman International University','El Alamein International University','New Mansoura University','Egypt-Japan University of Science and Technology (E-JUST)','Zewail City of Science and Technology','Egypt University of Informatics (EUI)','Arab Academy for Science, Technology and Maritime Transport (AASTMT)','The Knowledge Hub Universities (TKH, Coventry)','Universities of Canada in Egypt','Global Academic Foundation (University of Hertfordshire)','University of East London in Egypt','Canadian International College (CIC)','Akhbar El Yom Academy','Helwan Technological University']],
  ['Not listed',['Other university in Egypt','University abroad']]];
 const UNIS=UNI_GROUPS.flatMap(g=>g[1]);
+// One alphabetical list in the form: no public/private labels. The two 'not listed' options stay at the end.
+const UNI_LIST=[...UNI_GROUPS.slice(0,3).flatMap(g=>g[1])].sort((x,y)=>x.localeCompare(y)).concat(UNI_GROUPS[3][1]);
 const UNI_TEXT=['Other university in Egypt','University abroad'];
 const CITY_GROUPS=[
  ['Cairo',['New Cairo','Nasr City','Heliopolis','Maadi','Downtown Cairo','Zamalek','Shorouk City','Madinaty','Rehab City','Mokattam','New Administrative Capital','Helwan','Other area in Cairo']],
@@ -597,7 +599,7 @@ function profileForm(s){
   <div class="grid2">
    <label class="f">Where are you now? *<select id="p-status" data-d="statusNow">${optPairs(STATUS_NOW,sel('statusNow'),'Choose one')}</select></label>
    <label class="f">Graduation year (or expected) *<select id="p-gradYear" data-d="gradYear">${opt(YEARS,sel('gradYear'),'Choose year')}</select></label>
-   <label class="f">University *<select id="p-university" data-d="university">${optGroups(UNI_GROUPS,uni,'Choose your university')}</select></label>
+   <label class="f">University *<select id="p-university" data-d="university">${opt(UNI_LIST,uni,'Choose your university')}</select></label>
    ${UNI_TEXT.includes(uni)?`<label class="f">${uni==='University abroad'?'University name and country *':'University name *'}<input id="p-uniOther" data-d="universityOther" value="${v('universityOther')}" placeholder="${uni==='University abroad'?'e.g. University of Toronto, Canada':'Full university name'}"></label>`:''}
    <label class="f">Major *<select id="p-major" data-d="major">${optGroups(MAJOR_GROUPS,maj,'Choose your major')}</select></label>
    ${maj==='Other'?`<label class="f">Your major *<input id="p-majorOther" data-d="majorOther" value="${v('majorOther')}"></label>`:''}
@@ -768,7 +770,7 @@ function talentView(){
     <label class="f">Rank against role<select data-trole="1"><option value="">No role, rank by score</option>${roles.map(r=>`<option value="${r.id}"${r.id===state.tRole?' selected':''}>${esc(r.title)}</option>`).join('')}</select></label>
     ${sel('area',[['Role area',ROLE_AREAS.filter(a=>a!=='Not sure yet')]],'Wants roles in')}
     <label class="f">Stage<select data-tf="stage">${optPairs(STATUS_NOW,f.stage||'','Any')}</select></label>
-    ${sel('field',[['Field',FIELDS]],'Field of study')}${sel('uni',UNI_GROUPS.slice(0,3),'University')}${sel('year',[['Year',YEARS]],'Graduation year')}
+    ${sel('field',[['Field',FIELDS]],'Field of study')}${sel('uni',[['University',UNI_LIST.filter(x=>!UNI_TEXT.includes(x))]],'University')}${sel('year',[['Year',YEARS]],'Graduation year')}
     ${sel('region',[['Region',REGIONS]],'Lives in')}${sel('skill',SKILL_GROUPS,'Has skill')}${sel('min',[['Score',['60','70','80','90']]],'Minimum score')}
    </div>
    <p class="small muted">${list.length} assessed student${list.length===1?'':'s'} visible. Profiles are anonymous: names, contact details and CVs are shared only after Intern+ confirms an intro.</p></div>
