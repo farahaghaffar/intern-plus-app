@@ -78,3 +78,12 @@ Draft question bank v1 is a placeholder pending the validated bank. The pilot is
 - Percentile ranking appears once 50 real students have completed.
 - Students scoring under 80 in an area can join a free waitlist for future coaching (`waitlist_areas`). No payment is taken.
 - The question bank lives in `assessment/bank_v2.json`; `assessment/build_sql.py` regenerates the SQL.
+
+## Assessment v3 (levels and field examples)
+
+- Two levels: **Undergraduate** (still at university, graduating after the coming summer) and **Graduate** (final year, fresh graduates, working). The level is fixed by the database (`level_for`) when the intern answers the first question.
+- Some questions use examples from the intern's field (business, tech, media, health, social). The options and the correct answer never change, so scores stay comparable.
+- Percentiles compare interns only with others at the same level who have completed their profile.
+- Sign-up is a 5-field quick start; the full profile (CV, skills, experience, consent) comes after the report. Interns only enter the talent pool after completing it.
+- The report explains the score band, each area, specific tips, and every answer with the reasoning.
+- Bank source: `assessment/make_bank_v3.py` builds `bank_v3.json`; `assessment/build_sql_v3.py` builds `supabase/07_levels.sql`.
